@@ -1,11 +1,14 @@
 #
-# $Id: HISTORY,v 0.73 2001/06/12 18:04:36 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.74 2001/07/16 18:42:55 dankogai Exp dankogai $
 #
-
+0.74    2001/07/17
+	* optimization of debug (()->(:?))
+	  (Hiroki Ohzaki <ohzaki@iod.ricoh.co.jp>)
+	* H2Z bugfix (Mutsutoshi Yoshimoto <riku@freedom.co.jp>)
 0.73    2001/06/13
-       * euc -> jis conversion fails when it encounters
-         consecutive hankaku kana then zenkaku kana
-         (Mikage Sawatari<mikage@mikage.to>)
+        * euc -> jis conversion fails when it encounters
+          consecutive hankaku kana then zenkaku kana
+          (Mikage Sawatari<mikage@mikage.to>)
 0.72    2001/06/01
         * $j->tr("a-Z", '', 'd') fixed
           (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)

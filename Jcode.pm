@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.68 2000/12/27 08:40:55 dankogai Exp $
+# $Id: Jcode.pm,v 0.69 2001/05/13 23:03:06 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.68 2000/12/27 08:40:55 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.68 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.69 2001/05/13 23:03:06 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.69 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -73,6 +73,8 @@ Methods mentioned here all return Jcode object unless otherwise mentioned.
 use overload 
     '""' => sub { ${$_[0]->[0]} },
     '==' => sub {overload::StrVal($_[0]) eq overload::StrVal($_[1])},
+    '='  => sub{ $_[0]->set( $_[1] ) },
+    '.=' => sub{ $_[0]->append( $_[1] ) },
     fallback => 1,
     ;
 
@@ -210,7 +212,9 @@ sub jfold{
     $nl  ||= "\n";
     my $r_str = $self->[0];
     my (@lines, $len, $i);
-    while ($$r_str =~ m/([\x8f\x8e]$RE{EUC_C}|$RE{EUC_C}|[\x00-\xff])/sgo){
+    while ($$r_str =~
+	   m/($RE{EUC_0212}|$RE{EUC_KANA}|$RE{EUC_C}|[\x00-\xff])/sgo)
+    {
 	if ($len + length($1) > $bpl){ # fold!
 	    $i++; 
 	    $len = 0;
@@ -645,10 +649,16 @@ sub euc_jis {
 	}
     {
 	my $str = $1;
-	my $esc = ($str =~ tr/\x8e//d) ?	$ESC{KANA} : 
-	    ($str =~ tr/\x8f//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
-	$str =~ tr/\xa1-\xfe/\x21-\x7e/;
-	$esc . $str . $ESC{ASC}
+	$str =~ s{
+	    ($RE{EUC_C}+|$RE{EUC_KANA}+|$RE{EUC_0212}+)
+	    }{
+		my $substr = $1;
+		my $esc = ($substr =~ tr/\x8e//d) ? $ESC{KANA} :
+		    ($substr =~ tr/\x8f//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
+		$substr =~ tr/\xa1-\xfe/\x21-\x7e/;
+		$esc . $substr;
+	    }geox;
+	$str . $ESC{ASC};
     }geox;
     $$r_str;
 }

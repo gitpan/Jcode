@@ -1,5 +1,5 @@
 /*
- * $Id: table.h,v 1.1 2000/11/15 05:44:53 dankogai Exp $
+ * $Id: table.h,v 0.69 2001/05/11 15:45:49 dankogai Exp dankogai $
  * (c) 1999 Dan Kogai <dankogai@dan.co.jp>
  */
 

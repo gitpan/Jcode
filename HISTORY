@@ -1,6 +1,9 @@
 #
-# $Id: HISTORY,v 0.68 2000/12/27 08:40:55 dankogai Exp $
+# $Id: HISTORY,v 0.69 2001/05/11 15:48:07 dankogai Exp dankogai $
 #
+0.69	2001/05/12
+	* lots of code beautification done in response to
+	Kazuto Ichimura <ichimura@shimada.nuee.nagoya-u.ac.jp>
 0.68	2000/12/27
 	* mime_encode(): regex bug that may spill hankaku kana
 	  is fixed (ohzaki@iod.ricoh.co.jp)

@@ -1,5 +1,5 @@
 #
-# $Id: README,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
+# $Id: README,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
 #
 
 Jcode:
@@ -15,9 +15,6 @@ You will need perl version 5.004 or better to install these modules.
 Further documentation is embedded in the individual modules.
 
 Copyright 1999 Dan Kogai.
-Based upon jcode.pl, Copyright 1995-1999 Kazumasa Utashiro <utashiro@iij.ad.jp>
 
-Use and redistribution for ANY PURPOSE, without significant
-modification, is granted as long as all copyright notices are
-retained.  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
-ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
+This library is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.

@@ -1,19 +1,95 @@
 #
-# $Id: Unicode.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
+# $Id: Unicode.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
 #
 
-#package Jcode::Unicode;
+=head1 NAME
 
-package Jcode;
+Jcode::Unicode - Aux. routines for Jcode
+
+=head1 DESCRIPTION
+
+This module is called by Jcode.pm on demand.  This module is not intended for
+direct use by users.  This modules implements functions related to Unicode.  
+Following functions are defined here;
+
+=item Jcode::ucs2_euc();
+
+=item Jcode::euc_ucs2();
+
+=item Jcode::ucs2_utf8();
+
+=item Jcode::utf8_ucs2();
+
+=item Jcode::euc_utf8();
+
+=item Jcode::utf8_euc();
+
+=cut
+
+package Jcode::Unicode;
+
+use strict;
+use vars qw($RCSID $VERSION);
+
+$RCSID = q$Id: Unicode.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+
+use Carp;
+
 use Jcode::Constants qw(:all);
 use Jcode::Unicode::Constants;
-use Carp;
-use strict;
+
+use vars qw(%_U2E %_E2U $PEDANTIC);
+
+=head1 VARIABLES
+
+=item B<$Jcode::Unicode::PEDANTIC>
+
+When set to non-zero, x-to-unicode conversion becomes pedantic.  
+That is, '\' (chr(0x5c)) is converted to zenkaku backslash and 
+'~" (chr(0x7e)) to JIS-x0212 tilde.
+
+By Default, Jcode::Unicode leaves ascii ([0x00-0x7f]) as it is.
+
+=cut
+
+$PEDANTIC = 0;
+
+sub _init_u2e{
+    unless ($PEDANTIC){
+	$_U2E{"\xff\x3c"} = "\xa1\xc0"; # ¡À
+    }else{
+	delete $_U2E{"\xff\x3c"};
+	$_U2E{"\x00\x5c"} = "\xa1\xc0";     #\
+	$_U2E{"\x00\x7e"} = "\x8f\xa2\xb7"; # ~
+    }
+}
+
+sub _init_e2u{
+    unless (%_E2U){
+	%_E2U = reverse %_U2E; # init only once!
+    }
+    unless ($PEDANTIC){
+	$_E2U{"\xa1\xc0"} = "\xff\x3c"; # ¡À
+    }else{
+	delete $_E2U{"\xa1\xc0"};
+	$_E2U{"\xa1\xc0"} = "\x00\x5c";     #\
+	$_E2U{"\x8f\xa2\xb7"} = "\x00\x7e"; # ~
+    }
+}
+
+
+# Yuck! but this is necessary because this module is 'require'd 
+# instead of being 'use'd (No package export done) subs below
+# belong to Jcode, not Jcode::Unicode
+
+package Jcode;
 
 sub ucs2_euc{
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    my $u2e = \%Jcode::Unicode::Constants::_U2E;
+    &Jcode::Unicode::_init_u2e;
+    my $u2e = \%Jcode::Unicode::_U2E;
 
     $$r_str =~ s(
 		 [\x00-\xff][\x00-\xff]
@@ -28,7 +104,8 @@ sub ucs2_euc{
 sub euc_ucs2{
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    my $e2u = \%Jcode::Unicode::Constants::_E2U;
+    &Jcode::Unicode::_init_e2u;
+    my $e2u = \%Jcode::Unicode::_E2U;
 
     # 3 bytes
     $$r_str =~ s(
@@ -105,4 +182,29 @@ sub utf8_ucs2{
 }
 
 1;
+__END__
 
+=head1 BUGS
+
+This module is slow on initialization because it has to load entire
+UCS2 to EUC table (and vice versa when necessary).  Once inited, the
+speed is OK.
+
+As you might have guessed, EUC <-> UTF8 conversion is implemented as 
+EUC <-> UCS2 <-> UTF8 conversion so performance sucks.
+
+
+=head1 SEE ALSO
+
+=item L<Jcode::Unicode::Constants>
+
+=item http://www.unicode.org/
+
+=head1 COPYRIGHT
+
+Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
+
+This library is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+=cut

@@ -1,10 +1,36 @@
 #
-# $Id: H2Z.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
+# $Id: H2Z.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
 #
+
+=head1 NAME
+
+Jcode::H2Z -- Hankaku-zenkaku conversion routines
+
+=head1 DESCRIPTION
+
+This module is for internal use by Jcode modules.
+
+=head1 COPYRIGHT
+
+Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
+
+This library is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+=cut
+
 package Jcode::H2Z;
+
 use strict;
-use Jcode::Constants qw(:all);
+use vars qw($RCSID $VERSION);
+
+$RCSID = q$Id: H2Z.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+
 use Carp;
+
+use Jcode::Constants qw(:all);
+
 use vars qw(%_D2Z  $_PAT_D2Z
 	    %_Z2D  $_PAT_Z2D
 	    %_H2Z  $_PAT_H2Z

@@ -1,4 +1,17 @@
 #
+# $Id: Jcode.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
+#
+
+package Jcode;
+require 5.004;
+
+use strict;
+use vars qw($RCSID $VERSION);
+
+$RCSID = q$Id: Jcode.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+
+use Carp;
 
 =head1 NAME
 
@@ -18,11 +31,6 @@ print Jcode->new($str)->h2z->tr($from, $to)->utf8;
 
 =cut
 
-package Jcode;
-require 5.004;
-use Carp;
-use strict;
-
 BEGIN {
     use Exporter;
     use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
@@ -34,8 +42,6 @@ BEGIN {
 
 use vars @EXPORT_OK;
 
-$RCSID = q$Id: Jcode.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.35 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 $USE_CACHE = 1;
 
@@ -287,7 +293,7 @@ sub tr{
 
 =head2 Methods implemented in Jcode::Unicode
 
-Warning: Unicode support by Jcode is far from efficient!
+See L<Jcode::Unicode> for details
 
 =item $ucs2 = $j->ucs2;
 
@@ -432,12 +438,12 @@ sub jis_euc {
     {
 	my ($esc, $str) = ($1, $2);
 	if ($esc !~ /$RE{JIS_ASC}/o) {
-	    $str =~ tr/\041-\176/\241-\376/;
+	    $str =~ tr/\x21-\x7e/\xa1-\xfe/;
 	    if ($esc =~ /$RE{JIS_KANA}/o) {
-		$str =~ s/([\241-\337])/\216$1/og;
+		$str =~ s/([\xa1-\xdf])/\x8e$1/og;
 	    }
 	    elsif ($esc =~ /$RE{JIS_0212}/o) {
-		$str =~ s/([\241-\376][\241-\376])/\217$1/og;
+		$str =~ s/([\xa1-\xfe][\xa1-\xfe])/\x8f$1/og;
 	    }
 	}
 	$str;
@@ -455,9 +461,9 @@ sub euc_jis {
 	}
     {
 	my $str = $&;
-	my $esc = ($str =~ tr/\216//d) ?	$ESC{KANA} : 
-	    ($str =~ tr/\217//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
-	$str =~ tr/\241-\376/\041-\176/;
+	my $esc = ($str =~ tr/\x8e//d) ?	$ESC{KANA} : 
+	    ($str =~ tr/\x8f//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
+	$str =~ tr/\xa1-\xfe/\x21-\x7e/;
 	$esc . $str . $ESC{ASC}
     }geox;
     $$r_str;
@@ -528,16 +534,38 @@ sub euc_sjis {
 
 __END__
 
+=head1 BUGS
+
+=item Unicode support by Jcode is far from efficient!
+
+=head1 ACKNOWLEDGEMENTS
+
+This package owes a lot in motivation, design, and code, to the jcode.pl 
+for Perl4 by Kazumasa Utashiro <utashiro@iij.ad.jp>.
+
+Hiroki Ohzaki <ohzaki@iod.ricoh.co.jp> has helped me polish regexp from the 
+very first stage of development.
+
+=head1 SEE ALSO
+
+=item L<Jcode::Constants>
+
+=item L<Jcode::H2Z>
+
+=item L<Jcode::Tr>
+
+=item L<Jcode::Unicode>
+
 =head1 COPYRIGHT
 
 Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
 
-Based upon jcode.pl, Copyright 1995-1999 Kazumasa Utashiro <utashiro@iij.ad.jp>
+This library is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
 
-Use and redistribution for ANY PURPOSE, without significant
-modification, is granted as long as all copyright notices are
-retained.  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
-ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
+Unicode conversion table in Jcode::Unicode::Constants is based on files at 
+ftp://ftp.unicode.org/Public/MAPPINGS/EASTASIA/JIS/, 
+Copyright (c) 1991-1994 Unicode, Inc.
 
 =cut
 

@@ -8,8 +8,6 @@ Jcode/Unicode/Constants.pm
 MANIFEST
 Makefile.PL
 README
-index-j.html
-index.html
 t/benchmark.pl
 t/convert.t
 t/h2z.t

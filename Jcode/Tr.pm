@@ -1,13 +1,39 @@
 #
-# $Id: Tr.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
+# $Id: Tr.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
 #
 
-package Jcode::Tr;
-use strict;
-use Carp;
-use Jcode::Constants qw(:all);
+=head1 NAME
 
+Jcode::Tr -- a tr that accepts EUC
+
+=head1 DESCRIPTION
+
+This module is for internal use by Jcode modules.
+
+=head1 COPYRIGHT
+
+Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
+
+This library is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+=cut
+
+package Jcode::Tr;
+
+use strict;
+use vars qw($VERSION $RCSID);
+
+$RCSID = q$Id: Tr.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+
+use Carp;
+
+use Jcode::Constants qw(:all);
 use vars qw(%_TABLE);
+
+$RCSID = q$Id: Tr.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub tr {
     # $prev_from, $prev_to, %table are persistent variables
@@ -19,7 +45,7 @@ sub tr {
     &_maketable($from, $to, $opt);
 
     $$r_str =~ s(
-		 [\200-\377][\000-\377]|[\000-\377]
+                [\x80-\xff][\x00-\xff]|[\x00-\xff]
 		 )
     {defined($_TABLE{$&}) && ++$n ? 
 	 $_TABLE{$&} : $&}ogex;
@@ -29,15 +55,15 @@ sub tr {
 
 sub _maketable {
     my ($from, $to, $opt) = @_;
-    my ($ascii) = '(\\\\[\\-\\\\]|[\0-\133\135-\177])';
-
-    grep(s/(([\200-\377])[\200-\377]-\2[\200-\377])/&_expnd2($1)/geo,
+    my ($ascii) = '(\\\\[\\-\\\\]|[\x00-\x5b\x5d-\x7f])';
+    grep(s/(([\x80-\xff])[\x80-\xff]-\2[\x80-\xff])/&_expnd2($1)/geo,
 	 $from,$to);
     grep(s/($ascii-$ascii)/&_expnd1($1)/geo,
 	 $from,$to);
 
-    my @to   = $to   =~ /[\200-\377][\000-\377]|[\000-\377]/go;
-    my @from = $from =~ /[\200-\377][\000-\377]|[\000-\377]/go;
+    my @to   = $to   =~ /[\x80-\xff][\x00-\xff]|[\x00-\xff]/go;
+    my @from = $from =~ /[\x80-\xff][\x00-\xff]|[\x00-\xff]/go;
+
     push(@to, ($opt =~ /d/ ? '' : $to[$#to]) x (@from - @to)) if @to < @from;
     @_TABLE{@from} = @to;
 }

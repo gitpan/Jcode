@@ -11,7 +11,11 @@ require Jcode;
 $Jcode::DEBUG = 1;
 print "done.\n";
 
-my $euc = `cat t/table.euc` or die "$!";
+$file = "t/table.euc";
+open F, $file or die "$file:$!";
+my $euc;
+read F, $euc, -s $file;
+
 my $ucs2 = Jcode->new($euc)->ucs2;
 my $utf8 = Jcode->new($euc)->utf8;
 

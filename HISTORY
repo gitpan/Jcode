@@ -1,6 +1,11 @@
 #
-# $Id: HISTORY,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.58 1999/07/27 10:52:27 dankogai Exp dankogai $
 #
+0.58	1999/07/27
+	* ActivePerl Support (Win_Install.PL)
+	* t/ scripts are now more compatible with Non-unix platforms
+	* *_Install.PL renamed to *_install.pl to prevent MakeMaker
+          from executing these files.
 0.57	1999/07/27
 	* Access Methods to misc. Jcode objecsts added
 	* UTF8 detection supported by getcode

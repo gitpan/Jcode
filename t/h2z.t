@@ -20,10 +20,14 @@ sub profile {
 
 
 my $n = 0;
-my $hankaku = `cat t/hankaku.euc`;
+my $file;
+
+my $hankaku; $file = "t/hankaku.euc"; open F, $file or die "$file:$!";
+read F, $hankaku, -s $file;
 profile(sprintf("prep:  hankaku ok %d\n", ++$n));
 
-my $zenkaku  = `cat t/zenkaku.euc`;
+my $zenkaku; $file = "t/zenkaku.euc"; open F, $file or die "$file:$!";
+read F, $zenkaku, -s $file;
 profile(sprintf("prep:  zenkaku ok %d\n", ++$n));
 
 my %code2str = 

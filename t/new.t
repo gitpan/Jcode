@@ -20,7 +20,10 @@ sub profile {
 
 
 my $n = 0;
-my $euc = `cat t/table.euc`;
+my $file = "t/table.euc";
+open F, $file or die "$file:$!";
+my $euc;
+read F, $euc, -s $file;
 profile(sprintf("prep:  euc ok %d\n", ++$n));
 
 my $jis  = Jcode::euc_jis($euc);
@@ -65,7 +68,12 @@ for my $icode (keys %code2str){
 
 # x212
 
-$euc = `cat t/x0212.euc`; #&ascii . &x201 . &x208;
+# x212
+
+$file = "t/x0212.euc";
+open F, $file or die "$file:$!";
+read F, $euc, -s $file;
+#profile(sprintf("prep:  euc ok %d\n", ++$n));
 $jis  = Jcode::euc_jis($euc);
 
 %code2str = 

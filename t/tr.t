@@ -20,12 +20,15 @@ sub profile {
 
 
 my $n = 0;
+my $file;
 
-my $katakana = `cat t/zenkaku.euc`;
-profile(sprintf("prep: katakana ok %d\n", ++$n));
+my $hiragana; $file = "t/hiragana.euc"; open F, $file or die "$file:$!";
+read F, $hiragana, -s $file;
+profile(sprintf("prep:  hiragana ok %d\n", ++$n));
 
-my $hiragana  = `cat t/hiragana.euc`;
-profile(sprintf("prep: hiragana ok %d\n", ++$n));
+my $katakana; $file = "t/zenkaku.euc"; open F, $file or die "$file:$!";
+read F, $katakana, -s $file;
+profile(sprintf("prep:  katakana ok %d\n", ++$n));
 
 #print jcode($katakana)->tr('A-Za-z¥¡-¥ó','a-zA-Z¤¡-¤ó');
 #__END__

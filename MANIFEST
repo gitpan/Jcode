@@ -7,7 +7,6 @@ Jcode/Tr.pm
 Jcode/Unicode/Constants.pm
 Jcode/Unicode/NoXS.pm
 MANIFEST
-Mac_Install.PL
 Makefile.PL
 README
 Unicode/Makefile.PL
@@ -16,6 +15,7 @@ Unicode/Unicode.xs
 Unicode/_test.pl
 Unicode/table.h
 Unicode/unicode.c
+mac_install.pl
 t/ambiguous.pl
 t/benchmark.pl
 t/convert.t
@@ -29,3 +29,4 @@ t/tr.t
 t/unibench.pl
 t/x0212.euc
 t/zenkaku.euc
+win_install.pl

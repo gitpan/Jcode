@@ -1,5 +1,5 @@
 #
-# $Id: INSTALL,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $
+# $Id: INSTALL,v 0.58 1999/07/27 10:52:27 dankogai Exp dankogai $
 #
 
 To install
@@ -15,12 +15,19 @@ Unix with a compiler
   make test
   make install
 
-On a Macs
+Macintosh
 ---------
 
-  Run "Mac_Install.PL" just once.  Make sure you have "site_perl"
+  Run "mac_install.pl" just once.  Make sure you have "site_perl"
   folder where your MacPerl folder resides.  If not, create one before
   you run this script.
+
+Windows (ActivePerl)
+--------------------
+
+  Run "win_install.pl" just once.  Make sure you have "site\lib"
+  folder where your ActivePerl folder resides.  If not, create one 
+  before you run this script.
 
 Mac, Win, RedHat  Linux with just default packages installed...
 ---------------------------------------------------------------
@@ -28,10 +35,6 @@ Mac, Win, RedHat  Linux with just default packages installed...
 
   Just copy Jcode.pm and Jcode directory (folder) into perl's lib
 directory.
-
-* On Macs, that's "lib" folder or "site_perl" folder in the same
-  folder where MacPerl is installed.
-* Ditto for Windows (I think.  Correct me if I am wrong).
 
   To find where the heck that lib folder is, run this small perl
   script.

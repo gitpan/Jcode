@@ -22,7 +22,11 @@ sub profile {
 
 
 my $n = 0;
-my $euc = `cat t/table.euc`;
+
+my $file = "t/table.euc";
+open F, $file or die "$file:$!";
+my $euc;
+read F, $euc, -s $file;
 profile(sprintf("prep:  euc ok %d\n", ++$n));
 
 my $jis  = Jcode::euc_jis($euc);

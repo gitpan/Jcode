@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.82 2002/09/23 18:30:03 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.83 2003/03/16 16:15:34 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.82 2002/09/23 18:30:03 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.82 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.83 2003/03/16 16:15:34 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.83 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -300,9 +300,13 @@ sub _add_encoded_word {
 	    $line = ' ';
 	}
 	while (1) {
+	    my $iso_2022_jp = jcode($target, 'euc')->iso_2022_jp;
+	    if (my $count = ($iso_2022_jp =~ tr/\x80-\xff//d)){
+		$DEBUG and warn $count;
+		$target = jcode($iso_2022_jp, 'iso_2022_jp')->euc;
+	    }
 	    my $encoded = '=?ISO-2022-JP?B?' .
-	      MIME::Base64::encode_base64(
-					  jcode($target, 'euc')->iso_2022_jp, '') 
+	      MIME::Base64::encode_base64($iso_2022_jp, '')
 		  . '?=';
 	    if (length($encoded) + length($line) > $bpl) {
 		$target =~ 

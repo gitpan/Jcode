@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.67 2000/12/26 01:51:06 dankogai Exp $
+# $Id: Jcode.pm,v 0.68 2000/12/27 08:40:55 dankogai Exp $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.67 2000/12/26 01:51:06 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.67 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.68 2000/12/27 08:40:55 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.68 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -274,7 +274,7 @@ sub _add_encoded_word {
 					  jcode($target, 'euc')->iso_2022_jp, '') 
 		    . '?=';
 	    if (length($encoded) + length($line) > $bpl) {
-		$target =~ s/($RE{EUC_0212}|$RE{EUC_C}|$RE{ASCII})$//o;
+		$target =~ s/($RE{EUC_0212}|$RE{EUC_KANA}|$RE{EUC_C}|$RE{ASCII})$//o;
 		$str = $1 . $str;
 	    } else {
 		$line .= $encoded;
@@ -342,7 +342,7 @@ sub mime_decode{
     my $self = shift;
     my $r_str = $self->[0];
     my $re_lws = '(?:(?:\r|\n|\x0d\x0a)?[ \t])+';
-    my $re_ew = '(?i:=\?ISO-2022-JP\?B\?)([A-Za-z0-9+/]+=*)\?=';
+    my $re_ew = '=\?[Ii][Ss][Oo]-2022-[Jj][Pp]\?[Bb]\?([A-Za-z0-9+/]+=*)\?=';
     $$r_str =~ s/($re_ew)$re_lws(?=$re_ew)/$1/sgo;
     $$r_str =~ s/$re_lws/ /go;
     $self->[2] = 

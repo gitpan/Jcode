@@ -1,9 +1,16 @@
 #
-# $Id: HISTORY,v 0.67 2000/12/26 01:49:56 dankogai Exp $
+# $Id: HISTORY,v 0.68 2000/12/27 08:40:55 dankogai Exp $
 #
+0.68	2000/12/27
+	* mime_encode(): regex bug that may spill hankaku kana
+	  is fixed (ohzaki@iod.ricoh.co.jp)
+          - t/mime.t modified to check this
+	* mime_decode(): (?i:=\?ISO-2022-JP\?B\?) replaced with
+	  =\?[Ii][Ss][Oo]-2022-[Jj][Pp]\?[Bb]\? to keep backward
+	  compatibilty with perl 5.004 (shino@ifnet.or.jp)
 0.67	2000/12/26
 	* all bugs on mime_encode() reported by 
-          shusuke@pop01.odn.ne.jp fixed
+          shusuke@pop01.odn.ne.jp is fixed
 	  - useless $bpl is now useful
 	  - RE{EUC_0212} -> $RE{EUC_0212} at a regexp
 0.66	2000/12/21

@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.79 2002/01/16 02:16:39 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.80 2002/05/03 00:20:16 dankogai Exp $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.79 2002/01/16 02:16:39 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.79 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.80 2002/05/03 00:20:16 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.80 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -224,6 +224,24 @@ sub jfold{
     $lines[$i] or pop @lines;
     $$r_str = join($nl, @lines);
     return wantarray ? @lines : $self;
+}
+
+=pod
+
+=over 4
+
+=item $length = $jcode-E<gt>jlength();
+
+returns character length properly, rather than byte length.
+
+=back
+
+=cut
+
+sub jlength {
+    my $self = shift;
+    my $r_str = $self->[0];
+    return scalar (my @char = $$r_str =~ m/($RE{EUC_0212}|$RE{EUC_KANA}|$RE{EUC_C}|[\x00-\xff])/sgo);
 }
 
 =head2 Methods that use MIME::Base64

@@ -1,6 +1,9 @@
 #
 # $Id: Changes,v 0.78 2002/01/15 08:15:43 dankogai Exp dankogai $
 #
+0.79	2001/01/16
+	* Typecast patches for AIX applied to Unicode/*.{xs,c}
+	  KUSANO Takayuki <AE5T-KSN@asahi-net.or.jp>
 0.78	2001/01/15
 	As suggested by Tatsuhiko Miyagawa <miyagawa@edge.co.jp>
 	* pod linting in a podchecker-compliant manner

@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.69 2001/05/13 23:03:06 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.70 2001/05/15 19:35:59 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.69 2001/05/13 23:03:06 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.69 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.70 2001/05/15 19:35:59 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.70 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -641,25 +641,29 @@ sub jis_euc {
 }
 
 #
-sub euc_jis {
+# euc_jis
+#
+# Based upon the contribution of
+# Kazuto Ichimura <ichimura@shimada.nuee.nagoya-u.ac.jp>
+#
+
+sub euc_jis{
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
     $$r_str =~ s{
-	(($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)
-	}
-    {
-	my $str = $1;
-	$str =~ s{
-	    ($RE{EUC_C}+|$RE{EUC_KANA}+|$RE{EUC_0212}+)
-	    }{
-		my $substr = $1;
-		my $esc = ($substr =~ tr/\x8e//d) ? $ESC{KANA} :
-		    ($substr =~ tr/\x8f//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
-		$substr =~ tr/\xa1-\xfe/\x21-\x7e/;
-		$esc . $substr;
-	    }geox;
-	$str . $ESC{ASC};
-    }geox;
+	($RE{EUC_C}+|$RE{EUC_KANA}+|$RE{EUC_0212}+)
+	}{
+	    my $str = $1;
+	    my $esc = 
+		( $str =~ tr/\x8E//d ) ? $ESC{KANA} :
+		    ( $str =~ tr/\x8F//d ) ? $ESC{JIS_0212} :
+			$ESC{JIS_0208};
+	    $str =~ tr/\xA1-\xFE/\x21-\x7E/;
+	    $esc . $str . $ESC{ASC};
+	}geox;
+    $$r_str =~
+	s/\Q$ESC{ASC}\E
+	    (\Q$ESC{KANA}\E|\Q$ESC{JIS_0212}\E|\Q$ESC{JIS_0208}\E)/$1/gox;
     $$r_str;
 }
 

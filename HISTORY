@@ -1,6 +1,11 @@
 #
-# $Id: HISTORY,v 0.69 2001/05/11 15:48:07 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.70 2001/05/15 19:35:59 dankogai Exp dankogai $
 #
+0.70	2001/05/16
+	* euc -> jis code optimized
+	  (Kazuto Ichimura <ichimura@shimada.nuee.nagoya-u.ac.jp>)
+	* VERSIONing glitches on Jcode::Unicode fixed
+	  (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)
 0.69	2001/05/12
 	* lots of code beautification done in response to
 	Kazuto Ichimura <ichimura@shimada.nuee.nagoya-u.ac.jp>

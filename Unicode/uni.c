@@ -1,5 +1,5 @@
 /*
- * $Id: uni.c,v 0.81 2004/06/20 08:43:44 dankogai Exp $
+ * $Id: uni.c,v 0.82 2004/12/03 12:04:22 dankogai Exp dankogai $
  * (c) 1999-2003 Dan Kogai <dankogai@dan.co.jp>
  * This library is free software; you can redistribute it and/or
  * modify it under the same terms as Perl itself.
@@ -47,16 +47,30 @@ U32 _euc_ucs2(U8 *dst, U8 *src){
 	if (*src <= 0x7F){       /* ASCII */
 	    ucs2 = src[0];
 	}else if (*src == 0x8e){ /* jisx0201 */
-	    ucs2 = j01_uni[src[1]];
-	    src += 1;
+	    if (src[1]){
+		ucs2 = j01_uni[src[1]];
+		src += 1;
+	    }else{
+		ucs2 = FB_UNI;
+	    }
 	}else if (*src == 0x8f){ /* jisx0212 */
-	    kuten  = (src[1] - 0xa1)*94 + (src[2] - 0xa1);
-	    ucs2 = CHKUTEN(kuten) ? j12_uni[kuten] : FB_UNI;
-	    src += 2;
+	    if (src[1] && src[2]){
+		kuten  = (src[1] - 0xa1)*94 + (src[2] - 0xa1);
+		ucs2 = CHKUTEN(kuten) ? j12_uni[kuten] : FB_UNI;
+		src += 2;
+	    }else{
+		ucs2 = FB_UNI;
+		if (src[1])
+		    src++;
+	    }
 	}else{                   /* jisx0208 */
-	    kuten  = (src[0] - 0xa1)*94 + (src[1] - 0xa1);
-	    ucs2 = CHKUTEN(kuten) ? j08_uni[kuten] : FB_UNI;
-	    src += 1;
+	    if (src[1]){
+		kuten  = (src[0] - 0xa1)*94 + (src[1] - 0xa1);
+		ucs2 = CHKUTEN(kuten) ? j08_uni[kuten] : FB_UNI;
+		src += 1;
+	    }else{
+		ucs2 = FB_UNI;
+	    }
 	}
 	dst[0] = ucs2/256; dst[1] = ucs2%256;
     }
@@ -71,8 +85,7 @@ U32 _ucs2_utf8(U8 *dst, U8 *src, U32 nchar){
 	if (ucs2 < 0x80){      /* 1 byte */
 	    *dst++ = ucs2; 
 	    result += 1;
-	}
-	else if (ucs2 < 0x800){ /* 2 bytes */
+	}else if (ucs2 < 0x800){ /* 2 bytes */
 	    *dst++ = (0xC0 | (ucs2 >> 6));
 	    *dst++ = (0x80 | (ucs2 & 0x3F));
 	    result += 2;
@@ -88,25 +101,34 @@ U32 _ucs2_utf8(U8 *dst, U8 *src, U32 nchar){
 }
 
 U32 _utf8_ucs2(U8 *dst, U8 *src){
-  U32  ucs2;
-  U8 c1, c2, c3;
-  U32 result = 0;
+    U32  ucs2;
+    U8 c1, c2, c3;
+    U32 result = 0;
   
-  for(; *src != '\0'; src++, result++){
-      if (*src < 0x80) {     /* 1 byte */
-	  ucs2 = *src;
-      }
-      else if (*src < 0xE0){ /* 2 bytes */
-	  c1 = *src++; c2 = *src;
-	  ucs2 = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
-      }else{                 /* 3 bytes */
-	  c1 = *src++; c2 = *src++; c3 = *src;
-	  ucs2 = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6)| (c3 & 0x3F);
-      }
-      *dst++ = (ucs2 & 0xff00) >> 8; /* 1st byte */
-      *dst++ = (ucs2 & 0xff);        /* 2nd byte */;
-  }
-  return result * 2;
+    for(; *src != '\0'; src++, result++){
+	if (*src < 0x80) {     /* 1 byte */
+	    ucs2 = *src;
+	}else if (*src < 0xE0){ /* 2 bytes */
+	    if (src[1]){
+		c1 = *src++; c2 = *src;
+		ucs2 = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
+	    }else{
+		ucs2 = FB_UNI;
+	    }
+	}else{                 /* 3 bytes */
+	    if (src[1] && src[2]){
+		c1 = *src++; c2 = *src++; c3 = *src;
+		ucs2 = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6)| (c3 & 0x3F);
+	    }else{
+		ucs2 = FB_UNI;
+		if (src[1])
+		    src++;
+	    }
+	}
+	*dst++ = (ucs2 & 0xff00) >> 8; /* 1st byte */
+	*dst++ = (ucs2 & 0xff);        /* 2nd byte */;
+    }
+    return result * 2;
 }
 
 U32 _euc_utf8(U8 *dst, U8 *src){
@@ -117,22 +139,35 @@ U32 _euc_utf8(U8 *dst, U8 *src){
 	if (*src <= 0x7F){       /* ASCII */
 	    ucs2 = src[0];
 	}else if (*src == 0x8e){ /* jisx0201 */
-	    ucs2 = j01_uni[src[1]];
-	    src += 1;
+	    if (src[1]){
+		ucs2 = j01_uni[src[1]];
+		src += 1;
+	    }else{
+		ucs2 = FB_UNI;
+	    }
 	}else if (*src == 0x8f){ /* jisx0212 */
-	    kuten  = (src[1] - 0xa1)*94 + (src[2] - 0xa1);
-	    ucs2 = CHKUTEN(kuten) ? j12_uni[kuten] : FB_UNI;
-	    src += 2;
+	    if (src[1] && src[2]){
+		kuten  = (src[1] - 0xa1)*94 + (src[2] - 0xa1);
+		ucs2 = CHKUTEN(kuten) ? j12_uni[kuten] : FB_UNI;
+		src += 2;
+	    }else{
+		ucs2 = FB_UNI;
+		if (src[1])
+		    src++;
+	    }
 	}else{                   /* jisx0208 */
-	    kuten  = (src[0] - 0xa1)*94 + (src[1] - 0xa1);
-	    ucs2 = CHKUTEN(kuten) ? j08_uni[kuten] : FB_UNI;
-	    src += 1;
+	    if (src[1]){
+		kuten  = (src[0] - 0xa1)*94 + (src[1] - 0xa1);
+		ucs2 = CHKUTEN(kuten) ? j08_uni[kuten] : FB_UNI;
+		src += 1;
+	    }else{
+		ucs2 = FB_UNI;
+	    }
 	}
 	if (ucs2 < 0x80){      /* 1 byte */
 	    *dst++ = ucs2; 
 	    result += 1;
-	}
-	else if (ucs2 < 0x800){ /* 2 bytes */
+	}else if (ucs2 < 0x800){ /* 2 bytes */
 	    *dst++ = (0xC0 | (ucs2 >> 6));
 	    *dst++ = (0x80 | (ucs2 & 0x3F));
 	    result += 2;
@@ -157,11 +192,22 @@ U32 _utf8_euc(U8 *dst, U8 *src){
 	if (*src < 0x80) {     /* 1 byte */
 	    ucs2 = *src;
 	}else if (*src < 0xE0){ /* 2 bytes */
-	    c1 = *src++; c2 = *src;
-	    ucs2 = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
+	    if (src[1]){
+		c1 = *src++; c2 = *src;
+		ucs2 = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
+	    }else{
+		ucs2 = FB_UNI;
+	    }
 	}else{                 /* 3 bytes */
-	    c1 = *src++; c2 = *src++; c3 = *src;
-	    ucs2 = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6)| (c3 & 0x3F);
+	    if (src[1] && src[2]){
+		c1 = *src++; c2 = *src++; c3 = *src;
+		ucs2 = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6)| (c3 & 0x3F);
+	    }else{
+		ucs2 = FB_UNI;
+		if (src[1]){
+		    src++;
+		}
+	    }
 	}
 	offset = uni2euc[ucs2/256] + (ucs2%256)*4;
 	strncpy((char *)dst, offset, 4);

@@ -1,8 +1,18 @@
 #
-# $Id: Changes,v 0.87 2004/07/24 02:58:27 dankogai Exp dankogai $
+# $Id: Changes,v 0.88 2004/12/03 12:04:22 dankogai Exp dankogai $
 #
+$Revision: 0.88 $ $Date: 2004/12/03 12:04:22 $
+! Unicode/uni.c
+  Patch by OHARA Shigeki that fixes segmentation fault when malformed
+  encoding is fed to utf8 (en|de)coder applied.  Message-Id:
+  <w0gfz2p3t1n.wl%os@iij.ad.jp>
 
-$Revision: 0.87 $ $Date: 2004/07/24 02:58:27 $
+$Revision: 0.88 $ $Date: 2004/12/03 12:04:22 $
+! Jcode.pm
+  Uninitialized values in jfold() now initialized.
+  Message-Id: <27BF6F48-38BE-11D9-9307-000A95DBB50A@dan.co.jp>
+
+0.87 2004/07/24 02:58:27
 ! Jcode.pm
   * Document Fix by shigeno@iij-mc.co.jp
   Message-Id: <20040708.175523.131609260.shigeno@iij-mc.co.jp>

@@ -1,6 +1,8 @@
 #
-# $Id: HISTORY,v 0.59 1999/10/16 22:32:52 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $
 #
+0.60	1999/10/18
+	* all $& exterminated due to popular demand
 0.59	1999/10/17
 	* fixed jperl incompatibiliy (Thanx, watanabe!)
 0.58	1999/07/28

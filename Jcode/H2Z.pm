@@ -1,5 +1,5 @@
 #
-# $Id: H2Z.pm,v 0.59 1999/10/16 22:10:06 dankogai Exp dankogai $
+# $Id: H2Z.pm,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $
 #
 
 package Jcode::H2Z;
@@ -7,8 +7,8 @@ package Jcode::H2Z;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: H2Z.pm,v 0.59 1999/10/16 22:10:06 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.59 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: H2Z.pm,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.60 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -132,21 +132,21 @@ sub h2z {
     unless ($keep_dakuten){
 	$n = (
 	      $$r_str =~ s(
-			   $RE{EUC_KANA}
-			   (:?\x8e[\xde\xdf])?
+			   ($RE{EUC_KANA}
+			    (:?\x8e[\xde\xdf])?)
 			   ){
-		  # $& is rather faster this case!
-		  $_D2Z{$&} || $_H2Z{$&} || 
+		  my $str = $1;
+		  $_D2Z{$str} || $_H2Z{$str} || 
 		      # in case dakuten and handakuten are side-by-side!
-		      $_H2Z{substr($&,0,2)} . $_H2Z{substr($&,2,2)};
+		      $_H2Z{substr($str,0,2)} . $_H2Z{substr($str,2,2)};
 		  }eogx
 	      );
     }else{
 	$n = (
 	      $$r_str =~ s(
-			   $RE{EUC_KANA}
+			   ($RE{EUC_KANA})
 			   ){
-		  $_H2Z{$&};
+		  $_H2Z{$1};
 		  }eogx
 	      );
     }
@@ -157,9 +157,9 @@ sub z2h {
     my $r_str = shift;
     my $n = (
 	     $$r_str =~ s(
-			  $RE{EUC_C}|$RE{EUC_KANA}
+			  ($RE{EUC_C}|$RE{EUC_KANA})
 			  ){
-		 $_Z2D{$&} || $_Z2H{$&} || $&;
+		 $_Z2D{$1} || $_Z2H{$1} || $1;
 		 }eogx
 	     );
     $n;

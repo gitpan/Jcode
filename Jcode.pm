@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.59 1999/10/16 22:10:06 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.59 1999/10/16 22:10:06 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.59 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.60 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -530,10 +530,10 @@ sub euc_jis {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
     $$r_str =~ s{
-	($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+
+	(($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)
 	}
     {
-	my $str = $&;
+	my $str = $1;
 	my $esc = ($str =~ tr/\x8e//d) ?	$ESC{KANA} : 
 	    ($str =~ tr/\x8f//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
 	$str =~ tr/\xa1-\xfe/\x21-\x7e/;
@@ -551,11 +551,12 @@ sub sjis_euc {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
     $$r_str =~ s(
-		 $RE{SJIS_C}|$RE{SJIS_KANA}
+		 ($RE{SJIS_C}|$RE{SJIS_KANA})
 	     )
     {
-	unless ($_S2E{$&}){
-	    my ($c1, $c2) = unpack('CC', $&);
+	my $str = $1;
+	unless ($_S2E{$1}){
+	    my ($c1, $c2) = unpack('CC', $str);
 	    if (0xa1 <= $c1 && $c1 <= 0xdf) {
 		$c2 = $c1;
 		$c1 = 0x8e;
@@ -566,9 +567,9 @@ sub sjis_euc {
 		$c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
 		$c2 += 0x60 + ($c2 < 0x7f);
 	    }
-	    $_S2E{$&} = pack('CC', $c1, $c2);
+	    $_S2E{$str} = pack('CC', $c1, $c2);
 	}
-	$_S2E{$&};
+	$_S2E{$str};
     }geox;
     $$r_str;
 }
@@ -579,15 +580,16 @@ sub euc_sjis {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
     $$r_str =~ s(
-		 $RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212}
+		 ($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})
 		 )
     {
-	unless ($_E2S{$&}){
-	    my ($c1, $c2) = unpack('CC', $&);
+	my $str = $1;
+	unless ($_E2S{$str}){
+	    my ($c1, $c2) = unpack('CC', $str);
 	    if ($c1 == 0x8e) {          # SS2
-		$_E2S{$&} = chr($c2);
+		$_E2S{$str} = chr($c2);
 	    } elsif ($c1 == 0x8f) {     # SS3
-		$_E2S{$&} = $CHARCODE{UNDEF_SJIS};
+		$_E2S{$str} = $CHARCODE{UNDEF_SJIS};
 	    }else { #SS1 or X0208
 		if ($c1 % 2) {
 		    $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
@@ -596,10 +598,10 @@ sub euc_sjis {
 		    $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
 		    $c2 -= 2;
 		}
-		$_E2S{$&} = pack('CC', $c1, $c2);
+		$_E2S{$str} = pack('CC', $c1, $c2);
 	    }
 	}
-	$_E2S{$&};
+	$_E2S{$str};
     }geox;
     $$r_str;
 }

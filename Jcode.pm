@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.71 2001/05/18 05:14:38 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.72 2001/05/31 15:36:07 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.71 2001/05/18 05:14:38 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.71 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.72 2001/05/31 15:36:07 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.72 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 

@@ -1,6 +1,10 @@
 #
-# $Id: HISTORY,v 0.71 2001/05/18 05:22:50 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.72 2001/05/31 15:36:07 dankogai Exp dankogai $
 #
+0.72    2001/06/01
+        * $j->tr("a-Z", '', 'd') fixed
+          (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)
+	* t/tr.t rewritten to test that
 0.71    2001/05/18
         * VERSIONing glitches on Jcode::Constants fixed
           (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)

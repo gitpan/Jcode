@@ -1,6 +1,17 @@
 #
-# $Id: HISTORY,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.63 2000/11/24 13:11:50 dankogai Exp $
 #
+0.63	2000/11/24
+	* $jcode->mime_(de|en)code bugfix
+          (thank you, ohzaki@iod.ricoh.co.jp;
+	   I shamelessly stole your code)
+0.62	2000/11/23
+	* Jcode/Tr.pm -- allows 3-byte tr (maybe slow!)
+        * $jcode->jfold() added
+        * $jcode->mime_(de|en)code is more RFC2045-compliant
+0.61	2000/11/15 (Unreleased)
+	* Unicode/unicode.c -> Unicode/uni.c
+          to avoid namespace breach on windoze
 0.60	1999/10/18
 	* all $& exterminated due to popular demand
 0.59	1999/10/17

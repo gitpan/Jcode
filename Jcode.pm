@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.63 2000/11/24 13:11:50 dankogai Exp $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.60 1999/10/18 06:01:38 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.60 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.63 2000/11/24 13:11:50 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.63 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -185,7 +185,6 @@ sub euc   { return ${$_[0]->[0]} }
 sub jis   { return  &euc_jis(${$_[0]->[0]})}
 sub sjis  { return &euc_sjis(${$_[0]->[0]})}
 
-
 =item $iso_2022_jp = $j->iso_2022_jp
 
 Same as $j->z2h->jis.  
@@ -195,24 +194,121 @@ Hankaku Kanas are forcibly converted to Zenkaku.
 
 sub iso_2022_jp{return $_[0]->h2z->jis}
 
+=item [@lines =] $jcode->jfold([$bytes_per_line, $newline_str]);
+
+folds lines in jcode string every $bytes_per_line (default: 72) 
+in a way that does not clobber the multibyte string.
+(Sorry, no Kinsoku done!)
+with a newline string spified by $newline_str (default: \n).  
+
+=cut
+
+sub jfold{
+    my $self = shift;
+    my ($bpl, $nl) = @_;
+    $bpl ||= 72;
+    $nl  ||= "\n";
+    my $r_str = $self->[0];
+    my (@lines, $len, $i);
+    while ($$r_str =~ m/([\x8f\x8e]$RE{EUC_C}|$RE{EUC_C}|[\x00-\xff])/sgo){
+	if ($len + length($1) > $bpl){ # fold!
+	    $i++; 
+	    $len = 0;
+	}
+	$lines[$i] .= $1;
+	$len += length($1);
+    }
+    $lines[$i] or pop @lines;
+    $$r_str = join($nl, @lines);
+    return wantarray ? @lines : $self;
+}
+
+
 =head2 Methods that use MIME::Base64
 
 To use methods below, you need MIME::Base64.  To install, simply
 
    perl -MCPAN -e 'CPAN::Shell->install("MIME::Base64")'
 
-=item $mime_header = $j->mime_encode;
+=item $mime_header = $j->mime_encode([$word_boundary]);
 
 Converts $str to MIME-Header documented in RFC1522.
 
 =cut
 
+#
+# shamelessly stolen from
+# http://www.din.or.jp/~ohzaki/perl.htm#JP_Base64
+#
+
+sub _add_encoded_word {
+    require MIME::Base64;
+    my($str, $line) = @_;
+    my $result;
+    while (length($str)) {
+	my $target = $str;
+	$str = '';
+	if (length($line) + 22 +
+	    ($target =~ /^(?:$RE{EUC_0212}|$RE{EUC_C})/o) * 8 > 76) {
+	    $line =~ s/[ \t\n\r]*$/\n/;
+	    $result .= $line;
+	    $line = ' ';
+	}
+	while (1) {
+	    my $encoded = '=?ISO-2022-JP?B?' .
+		MIME::Base64::encode_base64(
+					  jcode($target, 'euc')->iso_2022_jp, '') 
+		    . '?=';
+	    if (length($encoded) + length($line) > 76) {
+		$target =~ s/(RE{EUC_0212}|$RE{EUC_C}|$RE{ASCII})$//o;
+		$str = $1 . $str;
+	    } else {
+		$line .= $encoded;
+		last;
+	    }
+	}
+    }
+    return $result . $line;
+}
+
+sub _mime_unstructured_header {
+    my $oldheader = shift;
+    my ($header, @words, @wordstmp, $i);
+    $oldheader =~ s/\s+$//;
+    @wordstmp = split /\s+/, $oldheader;
+    for ($i = 0; $i < $#wordstmp; $i++) {
+	if ($wordstmp[$i] !~ /^[\x21-\x7E]+$/ and
+	    $wordstmp[$i + 1] !~ /^[\x21-\x7E]+$/) {
+	    $wordstmp[$i + 1] = "$wordstmp[$i] $wordstmp[$i + 1]";
+	} else {
+	    push(@words, $wordstmp[$i]);
+	}
+    }
+    push(@words, $wordstmp[-1]);
+    for my $word (@words) {
+	if ($word =~ /^[\x21-\x7E]+$/) {
+	    $header =~ /(?:.*\n)?(.*)/;
+	    if (length($1) + length($word) > 76) {
+		$header .= "\n $word";
+	    } else {
+		$header .= $word;
+	    }
+	} else {
+	    $header = _add_encoded_word($word, $header);
+	}
+	$header =~ /(?:.*\n)?(.*)/;
+	if (length($1) == 76) {
+	    $header .= "\n\t";
+	} else {
+	    $header .= ' ';
+	}
+    }
+    $header =~ s/(?:\n)?\t$/\n/;
+    $header;
+}
+
 sub mime_encode{
-    require MIME::Base64; # not use
-    my $self = shift;
-    my $jis = $self->iso_2022_jp;
-    my $base64 = MIME::Base64::encode_base64($jis, "");
-    return '=?ISO-2022-JP?B?' . $base64 .  '?=';
+    _mime_unstructured_header(${$_[0]->[0]});
 }
 
 =item $j->mime_decode;
@@ -223,20 +319,23 @@ You can retrieve the number of matches via $j->nmatch;
 
 =cut
 
+# see http://www.din.or.jp/~ohzaki/perl.htm#JP_Base64
+#$lws = '(?:(?:\x0D\x0A)?[ \t])+'; 
+#$ew_regex = '=\?ISO-2022-JP\?B\?([A-Za-z0-9+/]+=*)\?='; 
+#$str =~ s/($ew_regex)$lws(?=$ew_regex)/$1/gio; 
+#$str =~ s/$lws/ /go; $str =~ s/$ew_regex/decode_base64($1)/egio; 
+
 sub mime_decode{
     require MIME::Base64; # not use
     my $self = shift;
     my $r_str = $self->[0];
+    my $re_lws = '(?:(\x0D|\x0A|\x0D\x0A)?[ \t])+';
+    my $re_ew = '=\?ISO-2022-JP\?B\?([A-Za-z0-9+/]+=*)\?=';
+    $$r_str =~ s/($re_ew)$re_lws(?=$re_ew)/$1/sgo;
+    $$r_str =~ s/$re_lws/ /go;
     $self->[2] = 
-	(
-	 $$r_str =~ s(
-		      =\?[Ii][Ss][Oo]-2022-[Jj][Pp]\?[Bb]\?
-		      ([A-Za-z0-9\+\/]+=*)
-		      \?=
-		      )
-	 {
-	     jis_euc(MIME::Base64::decode_base64($1));
-	 }ogex
+	($$r_str =~
+	 s/$re_ew/jis_euc(MIME::Base64::decode_base64($1))/ego
 	 );
     $self;
 }

@@ -14,7 +14,7 @@ Unicode/Unicode.pm
 Unicode/Unicode.xs
 Unicode/_test.pl
 Unicode/table.h
-Unicode/unicode.c
+Unicode/uni.c
 mac_install.pl
 t/ambiguous.pl
 t/benchmark.pl

@@ -30,13 +30,13 @@ my $katakana; $file = "t/zenkaku.euc"; open F, $file or die "$file:$!";
 read F, $katakana, -s $file;
 profile(sprintf("prep:  katakana ok %d\n", ++$n));
 
-#print jcode($katakana)->tr('A-Za-zァ-ン','a-zA-Zぁ-ん');
+#print jcode($katakana)->tr('A-Za-zァ-ンｧ-ﾝ','a-zA-Zぁ-んｧ-ﾝ');
 #__END__
 
 my %code2str = 
     (
-     'A-Za-zァ-ン' =>  $katakana,
-     'a-zA-Zぁ-ん' =>  $hiragana,
+     'A-Za-zァ-ンｧ-ﾝ' =>  $katakana,
+     'a-zA-Zぁ-んｧ-ﾝ' =>  $hiragana,
      );
 
 # by Value

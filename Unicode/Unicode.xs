@@ -11,7 +11,7 @@ char *s;
 }
 
 #define PERL_XS 1
-#include "unicode.c"
+#include "uni.c"
 
 MODULE = Jcode::Unicode	PACKAGE = Jcode::Unicode
 

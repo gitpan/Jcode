@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.81 2002/09/18 13:45:32 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.82 2002/09/23 18:30:03 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.81 2002/09/18 13:45:32 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.81 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.82 2002/09/23 18:30:03 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.82 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -393,7 +393,7 @@ You can retrieve the number of matches via $j->nmatch;
 
 =item $j-E<gt>z2h;
 
-Converts X208 kana (Zenkaku) to X201 kana (Hankazu).
+Converts X208 kana (Zenkaku) to X201 kana (Hankaku).
 
 You can retrieve the number of matches via $j->nmatch;
 
@@ -618,7 +618,7 @@ sub convert{
     my $nmatch;
     ($icode, $nmatch) = getcode($r_str) unless $icode;
 
-    return $$r_str if $icode eq $ocode; # do nothin'
+    return $$r_str if $icode eq $ocode and !defined $opt; # do nothin'
 
     no strict qw(refs);
     my $method;

@@ -1,8 +1,22 @@
 #
-# $Id: Changes,v 0.83 2003/03/16 16:15:34 dankogai Exp dankogai $
+# $Id: Changes,v 0.85 2004/06/18 18:32:19 dankogai Exp dankogai $
 #
 
-$Revision: 0.83 $ $Date: 2003/03/16 16:15:34 $
+$Revision: 0.85 $ $Date: 2004/06/18 18:32:19 $
+! Jcode.pm
+  getcode() is now less likely to fail to detect utf-8
+  Message-Id: <001901c45541$234adb00$0401a8c0@makoto>
+
+2003/06/21 07:37:54
+! Unicode/* Manifest
+  Unicode XS is completely rewritten from scratch.  It is now
+  even faster than Encode (but less general, of course).
+  Instead of bsearch(), Unicode XS now uses flat lookup table
+  Which makes it not only faster but (hopefully) more portable.
+  Its only price is slightly larger size of the shared library
+  (360kb on FreeBSD 4-Stable)
+
+0.83 2003/03/16 16:15:34
 ! Jcode.pm
   Addresses the issue that mime_encode() stalls when fed w/ bogus data.  
   Found by Hisashi Nishimura <hisashin@hotsync.co.jp>

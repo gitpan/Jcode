@@ -13,7 +13,8 @@ Unicode/Makefile.PL
 Unicode/Unicode.pm
 Unicode/Unicode.xs
 Unicode/_test.pl
-Unicode/table.h
+Unicode/euc2uni.h
+Unicode/uni2euc.h
 Unicode/uni.c
 mac_install.pl
 t/ambiguous.pl
@@ -33,3 +34,4 @@ t/unibench.pl
 t/x0212.euc
 t/zenkaku.euc
 win_install.pl
+META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.83 2003/03/16 16:15:34 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.85 2004/06/18 18:32:19 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.83 2003/03/16 16:15:34 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.83 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.85 2004/06/18 18:32:19 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.85 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -604,6 +604,7 @@ sub getcode {
 	    while $$r_str =~ /((?:$RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)/go;
 	$utf8  += length($1) 
 	    while $$r_str =~ /((?:$RE{UTF8})+)/go;
+	$utf8 *= 1.5; # M. Takahashi's suggestion
 	$nmatch = _max($utf8, $sjis, $euc);
 	carp ">DEBUG:sjis = $sjis, euc = $euc, utf8 = $utf8" if $DEBUG >= 3;
 	$code = 

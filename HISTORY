@@ -1,6 +1,10 @@
 #
-# $Id: HISTORY,v 0.74 2001/07/16 18:42:55 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.75 2001/07/19 01:08:45 dankogai Exp dankogai $
 #
+0.75    2001/07/19
+	* (:?) -> (?:) (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)
+	* fixed file permissions 
+	  (Takahiro Kambe <taca@sky.yamashina.kyoto.jp>)
 0.74    2001/07/17
 	* optimization of debug (()->(:?))
 	  (Hiroki Ohzaki <ohzaki@iod.ricoh.co.jp>)

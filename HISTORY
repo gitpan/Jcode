@@ -1,6 +1,11 @@
 #
-# $Id: HISTORY,v 0.72 2001/05/31 15:36:07 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.73 2001/06/12 18:04:36 dankogai Exp dankogai $
 #
+
+0.73    2001/06/13
+       * euc -> jis conversion fails when it encounters
+         consecutive hankaku kana then zenkaku kana
+         (Mikage Sawatari<mikage@mikage.to>)
 0.72    2001/06/01
         * $j->tr("a-Z", '', 'd') fixed
           (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)

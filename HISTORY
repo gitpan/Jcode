@@ -1,0 +1,15 @@
+#
+# $Id: HISTORY,v 0.30 1999/07/12 22:08:13 dankogai Exp dankogai $
+#
+0.30	1999/07/11
+	* Regexp bug fixed (Jcode::Constants, $RE{JIS_0212})
+	* H2Z bug fixed
+	* Significant Code Optimization
+	* Jcode->set() and Jcode->append() added for repeated use
+0.21	1999/07/10
+	* Typo correction
+0.20	1999/07/10	2nd Preview Release
+	* Code optimization
+	* Unicode Support
+	* Lots of Bug Fixes
+0.10	1999/07/08	First Preview Release

@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.66 2000/12/21 12:04:40 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.67 2000/12/26 01:51:06 dankogai Exp $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.66 2000/12/21 12:04:40 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.66 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.67 2000/12/26 01:51:06 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.67 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -257,13 +257,13 @@ sub mime_encode{
 
 sub _add_encoded_word {
     require MIME::Base64;
-    my($str, $line) = @_;
+    my($str, $line, $bpl) = @_;
     my $result = '';
     while (length($str)) {
 	my $target = $str;
 	$str = '';
 	if (length($line) + 22 +
-	    ($target =~ /^(?:$RE{EUC_0212}|$RE{EUC_C})/o) * 8 > 76) {
+	    ($target =~ /^(?:$RE{EUC_0212}|$RE{EUC_C})/o) * 8 > $bpl) {
 	    $line =~ s/[ \t\n\r]*$/\n/;
 	    $result .= $line;
 	    $line = ' ';
@@ -273,8 +273,8 @@ sub _add_encoded_word {
 		MIME::Base64::encode_base64(
 					  jcode($target, 'euc')->iso_2022_jp, '') 
 		    . '?=';
-	    if (length($encoded) + length($line) > 76) {
-		$target =~ s/(RE{EUC_0212}|$RE{EUC_C}|$RE{ASCII})$//o;
+	    if (length($encoded) + length($line) > $bpl) {
+		$target =~ s/($RE{EUC_0212}|$RE{EUC_C}|$RE{ASCII})$//o;
 		$str = $1 . $str;
 	    } else {
 		$line .= $encoded;
@@ -310,7 +310,7 @@ sub _mime_unstructured_header {
 		$header .= $word;
 	    }
 	} else {
-	    $header = _add_encoded_word($word, $header);
+	    $header = _add_encoded_word($word, $header, $bpl);
 	}
 	$header =~ /(?:.*\n)?(.*)/;
 	if (length($1) == $bpl) {

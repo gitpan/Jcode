@@ -1,6 +1,11 @@
 #
-# $Id: HISTORY,v 0.65 2000/12/11 05:35:36 dankogai Exp $
+# $Id: HISTORY,v 0.67 2000/12/26 01:49:56 dankogai Exp $
 #
+0.67	2000/12/26
+	* all bugs on mime_encode() reported by 
+          shusuke@pop01.odn.ne.jp fixed
+	  - useless $bpl is now useful
+	  - RE{EUC_0212} -> $RE{EUC_0212} at a regexp
 0.66	2000/12/21
 	* =?iso-2022-jp?b? is now case insensitive
 	  (toshihiro.kayama@toshiba.co.jp)

@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.80 2002/05/03 00:20:16 dankogai Exp $
+# $Id: Jcode.pm,v 0.81 2002/09/18 13:45:32 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.80 2002/05/03 00:20:16 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.80 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.81 2002/09/18 13:45:32 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.81 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -221,7 +221,7 @@ sub jfold{
 	$lines[$i] .= $1;
 	$len += length($1);
     }
-    $lines[$i] or pop @lines;
+    defined($lines[$i]) or pop @lines;
     $$r_str = join($nl, @lines);
     return wantarray ? @lines : $self;
 }

@@ -1,8 +1,13 @@
 #
-# $Id: Changes,v 0.80 2002/05/03 00:19:55 dankogai Exp $
+# $Id: Changes,v 0.81 2002/09/18 13:45:32 dankogai Exp dankogai $
 #
 
-$Revision: 0.80 $ $Date: 2002/05/03 00:19:55 $
+$Revision: 0.81 $ $Date: 2002/09/18 13:45:32 $
+! Jcode.pm
+  jfold() fix by SATOH Fumiyasu <fumiya@samba.gr.jp>
+  Message-Id: <878z1zv2l3.wl@sugar.net-thrust.com.net-thrust.com>
+
+0.80  2002/05/03 00:19:55
 ! Jcode.pm    MANIFEST
 + t/length.t
   Jcode->jlength() method added by Miyagawa-kun

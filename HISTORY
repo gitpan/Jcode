@@ -1,7 +1,11 @@
 #
-# $Id: HISTORY,v 0.58 1999/07/27 10:52:27 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.59 1999/10/16 22:32:52 dankogai Exp dankogai $
 #
-0.58	1999/07/27
+0.59	1999/10/17
+	* fixed jperl incompatibiliy (Thanx, watanabe!)
+0.58	1999/07/28
+	* (mac|win)_install.pl now deletes old files before installing
+	  new ones.
 	* ActivePerl Support (Win_Install.PL)
 	* t/ scripts are now more compatible with Non-unix platforms
 	* *_Install.PL renamed to *_install.pl to prevent MakeMaker

@@ -1,5 +1,5 @@
 /*
- * $Id: unicode.c,v 0.58 1999/07/27 10:52:27 dankogai Exp dankogai $
+ * $Id: unicode.c,v 0.59 1999/10/16 22:10:06 dankogai Exp dankogai $
  * (c) 1999 Dan Kogai <dankogai@dan.co.jp>
  */
 
@@ -7,7 +7,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <ctype.h>
+/* 
+isascii() is no longer used to keep compatible w/ jperl
+ -- thanks, Hirofumi.Watanabe@jp.sony.com
+#include <ctype.h> 
+*/
+#define IS_ASCII(c) ((unsigned)(c) <= 0x7F)
+
 #include "table.h"
 #include <sys/errno.h>
 
@@ -44,7 +50,7 @@ int u_match(const void *key, const void *member){
 Octet *u2e(Quad *qp, int pedantic){
   Table_t *t;
   static Octet buf[4];
-  if (isascii(*qp)){
+  if (IS_ASCII(*qp)){
     if (!pedantic || not_iso646_jp(*qp)){
       return q2o(*qp);
     }
@@ -93,7 +99,7 @@ int e_match(const void *key, const void *member){
 Octet *e2u(Quad *qp, int pedantic){
   Table_t *t;
   static Octet buf[4];
-  if (isascii(*qp)){
+  if (IS_ASCII(*qp)){
     if (!pedantic || not_iso646_jp(*qp)){
       sprintf(buf, "%c%c", '\0', *qp);
       return buf;
@@ -130,7 +136,7 @@ size_t _euc_ucs2(Octet *dst, Octet *src, int pedantic){
        *src != '\0'; 
        src++, dst += 2, nchar++)
     {
-      if (isascii(*src)){
+      if (IS_ASCII(*src)){
 	q = o2q(src, 1);
       }
       else if(*src != 0x8f){

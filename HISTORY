@@ -1,6 +1,9 @@
 #
-# $Id: HISTORY,v 0.76 2001/12/17 00:30:41 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.77 2002/01/14 11:06:55 dankogai Exp dankogai $
 #
+0.77	2001/01/14
+	* pod linting
+	* Mention to Encode module added to pod
 0.76	2001/12/17
 	* mime_encode bug fixed
 	  (jun.k <jun.k@isite.homeip.net>)

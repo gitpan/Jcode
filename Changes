@@ -1,11 +1,20 @@
 #
-# $Id: Changes,v 0.86 2004/06/20 09:54:33 dankogai Exp $
+# $Id: Changes,v 0.87 2004/07/24 02:58:27 dankogai Exp dankogai $
 #
-$Revision: 0.86 $ $Date: 2004/06/20 09:54:33 $
+
+$Revision: 0.87 $ $Date: 2004/07/24 02:58:27 $
+! Jcode.pm
+  * Document Fix by shigeno@iij-mc.co.jp
+  Message-Id: <20040708.175523.131609260.shigeno@iij-mc.co.jp>
+  * getcode() reverted to pre-0.84 because the new algorithm is prone
+    to false positive cases, reported by inu@kc5.so-net.ne.jp.
+  Message-Id: <20040723.233005.78712771.inu@mail.design.co.jp>
+
+0.86 2004/06/20 09:54:33
 ! Unicode/uni.c Unicode/uni2euc.h
   Flat-table representation of uni2euc is now segmented to paged
-  tables so Visual C++ happy.  Also pages w/ undefined characters
-  only are aggregated to shrink the table by more than 50%.
+  tables so Visual C++ is happy.  Also pages that contain only undefined 
+  characters are aggregated to shrink the table by more than 50%.
   Thank you, Takahashi-san.
   Message-Id: <006301c45664$a048cb20$0401a8c0@makoto>
 

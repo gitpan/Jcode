@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.86 2004/06/20 09:54:13 dankogai Exp $
+# $Id: Jcode.pm,v 0.87 2004/07/24 02:58:27 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.86 2004/06/20 09:54:13 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.86 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.87 2004/07/24 02:58:27 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.87 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -178,7 +178,7 @@ What you code is what you get :)
 
 =item $iso_2022_jp = $j-E<gt>iso_2022_jp
 
-Same as $j->z2h->jis.  
+Same as $j->h2z->jis.  
 Hankaku Kanas are forcibly converted to Zenkaku.
 
 =back
@@ -602,9 +602,9 @@ sub getcode {
 	    while $$r_str =~ /((?:$RE{SJIS_C})+)/go;
 	$euc  += length($1) 
 	    while $$r_str =~ /((?:$RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)/go;
-	$utf8  += length($1) 
+	$utf8 += length($1) 
 	    while $$r_str =~ /((?:$RE{UTF8})+)/go;
-	$utf8 *= 1.5; # M. Takahashi's suggestion
+	# $utf8 *= 1.5; # M. Takahashi's suggestion
 	$nmatch = _max($utf8, $sjis, $euc);
 	carp ">DEBUG:sjis = $sjis, euc = $euc, utf8 = $utf8" if $DEBUG >= 3;
 	$code = 

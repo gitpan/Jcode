@@ -19,3 +19,4 @@ t/new.t
 t/table.euc
 t/tr.t
 t/zenkaku.euc
+t/ambiguous.pl

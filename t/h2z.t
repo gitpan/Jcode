@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
+use diagnostics;
+$| = 1; # autoflush
 use vars qw(@ARGV $ARGV);
 use Jcode;
 

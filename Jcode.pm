@@ -34,8 +34,8 @@ BEGIN {
 
 use vars @EXPORT_OK;
 
-$RCSID = q$Id: Jcode.pm,v 0.30 1999/07/12 22:16:16 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.30 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.35 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 $USE_CACHE = 1;
 
@@ -47,7 +47,7 @@ my %_S2E = ();
 my %_E2S = ();
 
 use overload 
-    '""' => sub { $_[0]->{str} },
+    '""' => sub { ${$_[0]->{r_str}} },
     '==' => sub {overload::StrVal($_[0]) eq overload::StrVal($_[1])},
     fallback => 1,
     ;
@@ -80,14 +80,16 @@ convert from UTF8).
 The object keeps the string in EUC format enternaly.  When the object 
 itself is evaluated, it returns the EUC-converted string so you can 
 "print $j;" without calling access method if you are using EUC 
-(thanks to function overload). 
+(thanks to function overload).
 
-If you don't have to preseve the value of $str, you can use reference as
+Just like most of perl objects, Jcode object is just a reference to hash so you can retrieve its guts via $j->{whatever}.
+
+Instead of scalar value, You can use reference as
 
 Jcode->new(\$str);
 
-That saves time and memory in exchange of the loss of original value of $str.  
-Any functions below where $str is used, you can give \$str instead.
+This saves time a little bit.  In exchange of the value of $str being 
+converted. (In a way, $str is now "tied" to jcode object).
 
 =cut
 
@@ -95,12 +97,11 @@ sub new {
     my $class = shift;
     my ($thingy, $icode) = @_;
     my $r_str = _mkbuf($thingy);
-
     my $nmatch;
     ($icode, $nmatch) = getcode($r_str) unless $icode;
     convert($r_str, 'euc', $icode);
     my $self = {
-	str    => $$r_str,
+	r_str    => $r_str,
 	icode  => $icode,
 	nmatch => $nmatch,
     };
@@ -110,7 +111,7 @@ sub new {
 
 =item $j->set($str [, $icode]);
 
-Sets $j's string to $str.  Handy when you use Jcode object repeatedly 
+Sets $j's internal string to $str.  Handy when you use Jcode object repeatedly 
 (saves time and memory to create object). 
 
 # converts mailbox to SJIS format
@@ -127,7 +128,7 @@ sub set {
     my $nmatch;
     ($icode, $nmatch) = getcode($r_str) unless $icode;
     convert($r_str, 'euc', $icode);
-    $self->{str}    = $$r_str;
+    $self->{r_str}  = $r_str;
     $self->{icode}  = $icode;
     $self->{nmatch} = $nmatch;
     return $self;
@@ -135,19 +136,20 @@ sub set {
 
 =item $j->append($str [, $icode]);
 
-Appends $str to $jstr's string.
+Appends $str to $j's internal string.
 
 =cut
 
 sub append {
     my $self = shift;
-    my ($str, $icode) = @_;
+    my ($thingy, $icode) = @_;
+    my $r_str = _mkbuf($thingy);
     my $nmatch;
-    ($icode, $nmatch) = getcode($str) unless $icode;
-    convert(\$str, 'euc', $icode);
-    $self->{str}   .= $str;
-    $self->{icode}  = $icode;
-    $self->{nmatch} = $nmatch;
+    ($icode, $nmatch) = getcode($r_str) unless $icode;
+    convert($r_str, 'euc', $icode);
+    ${$self->{r_str}}   .= $$r_str;
+    $self->{icode}       = $icode;
+    $self->{nmatch}      = $nmatch;
     return $self;
 }
 
@@ -168,9 +170,9 @@ What you code is what you get :)
 =cut
 
 sub jcode { return Jcode->new(@_) }
-sub euc   { return $_[0]->{str} }
-sub jis   { return  &euc_jis($_[0]->{str})}
-sub sjis  { return &euc_sjis($_[0]->{str})}
+sub euc   { return ${$_[0]->{r_str}} }
+sub jis   { return  &euc_jis(${$_[0]->{r_str}})}
+sub sjis  { return &euc_sjis(${$_[0]->{r_str}})}
 
 =item $iso_2022_jp = j$str->iso_2022_jp
 
@@ -212,18 +214,19 @@ You can retrieve the number of matches via $j->{nmatch};
 sub mime_decode{
     require MIME::Base64; # not use
     my $self = shift;
-    $self->{nmatch} = (
-	     $self->{str} =~ 
-	     s(
-	       =\?[Ii][Ss][Oo]-2022-[Jj][Pp]\?[Bb]\?
-	       ([A-Za-z0-9\+\/]+=*)
-	       \?=
-	       )
-	     {
-		 jis_euc(MIME::Base64::decode_base64($1));
-	     }ogex
-	     );
-    return $self;
+    my $r_str = $self->{r_str};
+    $self->{nmatch} = 
+	(
+	 $$r_str =~ s(
+		      =\?[Ii][Ss][Oo]-2022-[Jj][Pp]\?[Bb]\?
+		      ([A-Za-z0-9\+\/]+=*)
+		      \?=
+		      )
+	 {
+	     jis_euc(MIME::Base64::decode_base64($1));
+	 }ogex
+	 );
+    $self;
 }
 
 =head2 Methods implemented by Jcode::H2Z
@@ -244,7 +247,7 @@ You can retrieve the number of matches via $j->{nmatch};
 sub h2z {
     require Jcode::H2Z; # not use
     my $self = shift;
-    $self->{nmatch} = Jcode::H2Z::h2z(\$self->{str}, @_);
+    $self->{nmatch} = Jcode::H2Z::h2z($self->{r_str}, @_);
     return $self;
 }
 
@@ -259,7 +262,7 @@ You can retrieve the number of matches via $j->{nmatch};
 sub z2h {
     require Jcode::H2Z; # not use
     my $self = shift;
-    $self->{nmatch} =  &Jcode::H2Z::z2h(\$self->{str}, @_);
+    $self->{nmatch} =  &Jcode::H2Z::z2h($self->{r_str}, @_);
     return $self;
 }
 
@@ -278,7 +281,7 @@ You can retrieve the number of matches via $j->{nmatch};
 sub tr{
     require Jcode::Tr; # not use
     my $self = shift;
-    $self->{nmatch} = Jcode::Tr::tr(\$self->{str}, @_);
+    $self->{nmatch} = Jcode::Tr::tr($self->{r_str}, @_);
     return $self;
 }
 
@@ -294,7 +297,7 @@ Returns UCS2 (Raw Unicode) string.
 
 sub ucs2{
     require Jcode::Unicode;
-    euc_ucs2($_[0]->{str});
+    euc_ucs2(${$_[0]->{r_str}});
 }
 
 =item $ucs2 = $j->utf8;
@@ -305,7 +308,7 @@ Returns utf8 String.
 
 sub utf8{
     require Jcode::Unicode;
-    euc_utf8($_[0]->{str});
+    euc_utf8(${$_[0]->{r_str}});
 }
 
 =head1 Traditional Way
@@ -319,7 +322,11 @@ As mentioned above, $str can be \$str instead.
 Warning:  UTF8 is not automatically detected!
 
 jcode.pl Users:
-This function is 100% upper-conpatible with jcode::getcode() !
+This function is 100% upper-conpatible with jcode::getcode() -- well, almost;
+
+* When its return value is an array, the order is the opposite;  jcode::getcode() returns $nmatch first.
+
+* jcode::getcode() returns 'undef' when the number of EUC characters is equal to that of SJIS.  Jcode::getcode() returns EUC.  for Jcode.pm is no in-betweens.
 
 =cut
 
@@ -413,30 +420,29 @@ sub convert{
     $$r_str;
 }
 
-#
+# JIS<->EUC
 
 sub jis_euc {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    $$r_str =~ s{($RE{JIS_0212}|$RE{JIS_0208}|$RE{JIS_ASC}|$RE{JIS_KANA})
-		  ([^\e]*)
-		  }
-    {&_jis_euc($1,$2)}geox;
+    $$r_str =~ s(
+		 ($RE{JIS_0212}|$RE{JIS_0208}|$RE{JIS_ASC}|$RE{JIS_KANA})
+		 ([^\e]*)
+		 )
+    {
+	my ($esc, $str) = ($1, $2);
+	if ($esc !~ /$RE{JIS_ASC}/o) {
+	    $str =~ tr/\041-\176/\241-\376/;
+	    if ($esc =~ /$RE{JIS_KANA}/o) {
+		$str =~ s/([\241-\337])/\216$1/og;
+	    }
+	    elsif ($esc =~ /$RE{JIS_0212}/o) {
+		$str =~ s/([\241-\376][\241-\376])/\217$1/og;
+	    }
+	}
+	$str;
+    }geox;
     $$r_str;
-}
-
-sub _jis_euc {
-    my ($esc, $str) = @_;
-    if ($esc !~ /$RE{JIS_ASC}/o) {
-	$str =~ tr/\041-\176/\241-\376/;
-	if ($esc =~ /$RE{JIS_KANA}/o) {
-	    $str =~ s/([\241-\337])/\216$1/og;
-	}
-	elsif ($esc =~ /$RE{JIS_0212}/o) {
-	    $str =~ s/([\241-\376][\241-\376])/\217$1/og;
-	}
-    }
-    return $str;
 }
 
 #
@@ -444,55 +450,45 @@ sub _jis_euc {
 sub euc_jis {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    $$r_str =~ s{(($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)}
-    {&_euc_jis($1) . $ESC{ASC}}geox;
+    $$r_str =~ s{
+	($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+
+	}
+    {
+	my $str = $&;
+	my $esc = ($str =~ tr/\216//d) ?	$ESC{KANA} : 
+	    ($str =~ tr/\217//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
+	$str =~ tr/\241-\376/\041-\176/;
+	$esc . $str . $ESC{ASC}
+    }geox;
     $$r_str;
 }
 
-sub _euc_jis {
-    my $str = shift;
-    $str =~ s{(($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)}
-    {&__euc_jis($1)}geox;
-    return $str;
-}
-
-sub __euc_jis {
-    my $str = shift;
-    my $esc = ($str =~ tr/\216//d) ?	$ESC{KANA} : 
-	($str =~ tr/\217//d) ? $ESC{JIS_0212} : $ESC{JIS_0208};
-    $str =~ tr/\241-\376/\041-\176/;
-    return $esc . $str;
-}
-
-#
+# EUC<->SJIS
 
 sub sjis_euc {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    $$r_str =~  
-	s{($RE{SJIS_C}|$RE{SJIS_KANA})}
-    {$_S2E{$1} || &_S2E($1)}geox;
+    $$r_str =~ s(
+		 $RE{SJIS_C}|$RE{SJIS_KANA}
+	     )
+    {
+	unless ($_S2E{$&}){
+	    my ($c1, $c2) = unpack('CC', $&);
+	    if (0xa1 <= $c1 && $c1 <= 0xdf) {
+		$c2 = $c1;
+		$c1 = 0x8e;
+	    } elsif (0x9f <= $c2) {
+		$c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe0 : 0x60);
+		$c2 += 2;
+	    } else {
+		$c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
+		$c2 += 0x60 + ($c2 < 0x7f);
+	    }
+	    $_S2E{$&} = pack('CC', $c1, $c2);
+	}
+	$_S2E{$&};
+    }geox;
     $$r_str;
-}
-
-sub _S2E {
-    my ($c1, $c2, $code);
-    ($c1, $c2) = unpack('CC', $code = shift);
-    if (0xa1 <= $c1 && $c1 <= 0xdf) {
-	$c2 = $c1;
-	$c1 = 0x8e;
-    } elsif (0x9f <= $c2) {
-	$c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe0 : 0x60);
-	$c2 += 2;
-    } else {
-	$c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
-	$c2 += 0x60 + ($c2 < 0x7f);
-    }
-    if ($USE_CACHE) {
-	$_S2E{$code} = pack('CC', $c1, $c2);
-    } else {
-	pack('CC', $c1, $c2);
-    }
 }
 
 #
@@ -500,31 +496,30 @@ sub _S2E {
 sub euc_sjis {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    $$r_str =~ s{($RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})}
-    {$_E2S{$1}||&_E2S($1)}geox;
+    $$r_str =~ s(
+		 $RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212}
+		 )
+    {
+	unless ($_E2S{$&}){
+	    my ($c1, $c2) = unpack('CC', $&);
+	    if ($c1 == 0x8e) {          # SS2
+		$_E2S{$&} = chr($c2);
+	    } elsif ($c1 == 0x8f) {     # SS3
+		$_E2S{$&} = $CHARCODE{UNDEF_SJIS};
+	    }else { #SS1 or X0208
+		if ($c1 % 2) {
+		    $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
+		    $c2 -= 0x60 + ($c2 < 0xe0);
+		} else {
+		    $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
+		    $c2 -= 2;
+		}
+		$_E2S{$&} = pack('CC', $c1, $c2);
+	    }
+	}
+	$_E2S{$&};
+    }geox;
     $$r_str;
-}
-
-sub _E2S {
-    my ($c1, $c2, $code);
-    ($c1, $c2) = unpack('CC', $code = shift);
-
-    if ($c1 == 0x8e) {		# SS2
-	return substr($code, 1, 1);
-    } elsif ($c1 == 0x8f) {	# SS3
-	return $CHARCODE{UNDEF_SJIS};
-    } elsif ($c1 % 2) {
-	$c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
-	$c2 -= 0x60 + ($c2 < 0xe0);
-    } else {
-	$c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
-	$c2 -= 2;
-    }
-    if ($USE_CACHE) {
-	$_E2S{$code} = pack('CC', $c1, $c2);
-    } else {
-	pack('CC', $c1, $c2);
-    }
 }
 
 #

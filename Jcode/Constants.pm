@@ -1,5 +1,5 @@
 #
-# $Id: Constants.pm,v 0.30 1999/07/12 22:07:47 dankogai Exp dankogai $
+# $Id: Constants.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
 #
 
 package Jcode::Constants;
@@ -25,8 +25,9 @@ my %_0208 = (
 		);
 
 %CHARCODE = (
-	     UNDEF_SJIS => '\x81\xac', # во
-	     UNDEF_JIS  => '\xa2\xf7', # вў -- used in unicode
+	     UNDEF_EUC  => '\xa2\xae',     # во in EUC
+	     UNDEF_SJIS => '\x81\xac',     # во in SJIS
+	     UNDEF_JIS  => '\xa2\xf7',     # вў -- used in unicode
 	     UNDEF_UNICODE  => '\x20\x20', # вў -- used in unicode
 	 );
 

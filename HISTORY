@@ -1,7 +1,12 @@
 #
-# $Id: HISTORY,v 0.30 1999/07/12 22:08:13 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
 #
-0.30	1999/07/11
+0.35	1999/07/15
+	* Jcode now internally stores a reference to string, not string
+	* Furthur performance optimization. Jcode::convert() is now faster
+          than jcode::convert() for most cases.
+	* documentation fixes
+0.30	1999/07/12
 	* Regexp bug fixed (Jcode::Constants, $RE{JIS_0212})
 	* H2Z bug fixed
 	* Significant Code Optimization

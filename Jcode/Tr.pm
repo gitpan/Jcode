@@ -1,5 +1,5 @@
 #
-# $Id: Tr.pm,v 0.30 1999/07/12 22:07:47 dankogai Exp dankogai $
+# $Id: Tr.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
 #
 
 package Jcode::Tr;

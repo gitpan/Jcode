@@ -1,5 +1,5 @@
 #
-# $Id: Constants.pm,v 0.30 1999/07/12 22:11:39 dankogai Exp dankogai $
+# $Id: Constants.pm,v 0.35 1999/07/14 16:35:43 dankogai Exp dankogai $
 #
 
 package Jcode::Unicode::Constants;

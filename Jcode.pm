@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.64 2000/11/24 14:58:19 dankogai Exp $
+# $Id: Jcode.pm,v 0.65 2000/12/11 05:35:36 dankogai Exp $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.64 2000/11/24 14:58:19 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.64 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.65 2000/12/11 05:35:36 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.65 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -58,7 +58,7 @@ use vars @EXPORT_OK;
 $DEBUG = 0;
 $USE_CACHE = 1;
 
-print $RCSID, "\n" if $DEBUG;
+print $RCSID, "\x0a" if $DEBUG;
 
 use Jcode::Constants qw(:all);
 
@@ -199,7 +199,7 @@ sub iso_2022_jp{return $_[0]->h2z->jis}
 folds lines in jcode string every $bytes_per_line (default: 72) 
 in a way that does not clobber the multibyte string.
 (Sorry, no Kinsoku done!)
-with a newline string spified by $newline_str (default: \n).  
+with a newline string spified by $newline_str (default: \x0a).  
 
 =cut
 
@@ -207,7 +207,7 @@ sub jfold{
     my $self = shift;
     my ($bpl, $nl) = @_;
     $bpl ||= 72;
-    $nl  ||= "\n";
+    $nl  ||= "\x0a";
     my $r_str = $self->[0];
     my (@lines, $len, $i);
     while ($$r_str =~ m/([\x8f\x8e]$RE{EUC_C}|$RE{EUC_C}|[\x00-\xff])/sgo){
@@ -244,13 +244,13 @@ Converts $str to MIME-Header documented in RFC1522.
 sub _add_encoded_word {
     require MIME::Base64;
     my($str, $line) = @_;
-    my $result;
+    my $result = '';
     while (length($str)) {
 	my $target = $str;
 	$str = '';
 	if (length($line) + 22 +
 	    ($target =~ /^(?:$RE{EUC_0212}|$RE{EUC_C})/o) * 8 > 76) {
-	    $line =~ s/[ \t\n\r]*$/\n/;
+	    $line =~ s/[ \t\x0a\x0d]*$/\x0a/;
 	    $result .= $line;
 	    $line = ' ';
 	}
@@ -271,9 +271,11 @@ sub _add_encoded_word {
     return $result . $line;
 }
 
+
 sub _mime_unstructured_header {
     my $oldheader = shift;
-    my ($header, @words, @wordstmp, $i);
+    my(@words, @wordstmp, $i);
+    my $header = '';
     $oldheader =~ s/\s+$//;
     @wordstmp = split /\s+/, $oldheader;
     for ($i = 0; $i < $#wordstmp; $i++) {
@@ -287,28 +289,32 @@ sub _mime_unstructured_header {
     push(@words, $wordstmp[-1]);
     for my $word (@words) {
 	if ($word =~ /^[\x21-\x7E]+$/) {
-	    $header =~ /(?:.*\n)?(.*)/;
+	    $header =~ /(?:.*\x0a)?(.*)/;
 	    if (length($1) + length($word) > 76) {
-		$header .= "\n $word";
+		$header .= "\x0a $word";
 	    } else {
 		$header .= $word;
 	    }
 	} else {
 	    $header = _add_encoded_word($word, $header);
 	}
-	$header =~ /(?:.*\n)?(.*)/;
+	$header =~ /(?:.*\x0a)?(.*)/;
 	if (length($1) == 76) {
-	    $header .= "\n\t";
+	    $header .= "\x0a ";
 	} else {
 	    $header .= ' ';
 	}
     }
-    $header =~ s/(?:\n)?\t$/\n/;
+    $header =~ s/\x0a? $/\x0a/;
     $header;
 }
 
 sub mime_encode{
-    _mime_unstructured_header(${$_[0]->[0]});
+    my $r_str = $_[0]->[0];
+    my ($trailing_crlf) = ($$r_str =~ /(\x0a|\x0d|\x0d\x0a)$/o);
+    my $str  = _mime_unstructured_header($$r_str);
+    not $trailing_crlf and $str =~ s/(\x0a|\x0d|\x0d\x0a)$//o;
+    $str;
 }
 
 =item $j->mime_decode;

@@ -23,6 +23,7 @@ t/getcode.t
 t/h2z.t
 t/hankaku.euc
 t/hiragana.euc
+t/mime.t
 t/new.t
 t/table.euc
 t/tr.t

@@ -1,5 +1,5 @@
 /*
- * $Id: uni.c,v 0.70 2001/05/15 19:35:59 dankogai Exp dankogai $
+ * $Id: uni.c,v 0.70 2001/05/15 19:35:59 dankogai Exp $
  * (c) 1999 Dan Kogai <dankogai@dan.co.jp>
  */
 

@@ -1,6 +1,12 @@
 #
-# $Id: HISTORY,v 0.70 2001/05/15 19:35:59 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.71 2001/05/18 05:22:50 dankogai Exp dankogai $
 #
+0.71    2001/05/18
+        * VERSIONing glitches on Jcode::Constants fixed
+          (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)
+        * _mkbuf is gone!
+          -> Jcode::Constants is now sub free!
+        * all *.pm passes podchecker(1) now
 0.70	2001/05/16
 	* euc -> jis code optimized
 	  (Kazuto Ichimura <ichimura@shimada.nuee.nagoya-u.ac.jp>)

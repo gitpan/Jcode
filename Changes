@@ -1,8 +1,15 @@
 #
-# $Id: Changes,v 0.85 2004/06/18 18:32:19 dankogai Exp dankogai $
+# $Id: Changes,v 0.86 2004/06/20 09:54:33 dankogai Exp $
 #
+$Revision: 0.86 $ $Date: 2004/06/20 09:54:33 $
+! Unicode/uni.c Unicode/uni2euc.h
+  Flat-table representation of uni2euc is now segmented to paged
+  tables so Visual C++ happy.  Also pages w/ undefined characters
+  only are aggregated to shrink the table by more than 50%.
+  Thank you, Takahashi-san.
+  Message-Id: <006301c45664$a048cb20$0401a8c0@makoto>
 
-$Revision: 0.85 $ $Date: 2004/06/18 18:32:19 $
+0.85 2004/06/18 18:32:19
 ! Jcode.pm
   getcode() is now less likely to fail to detect utf-8
   Message-Id: <001901c45541$234adb00$0401a8c0@makoto>

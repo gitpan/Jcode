@@ -1,5 +1,5 @@
 /*
- * $Id: uni.c,v 0.80 2003/06/21 07:37:54 dankogai Exp $
+ * $Id: uni.c,v 0.81 2004/06/20 08:43:44 dankogai Exp $
  * (c) 1999-2003 Dan Kogai <dankogai@dan.co.jp>
  * This library is free software; you can redistribute it and/or
  * modify it under the same terms as Perl itself.
@@ -25,11 +25,11 @@
 U32 _ucs2_euc(U8 *dst, U8 *src, U32 nchar){
     U32 result = 0;
     U32 len;
-    U16 ucs2;
+    char *offset;
     for (nchar /= 2; nchar > 0; nchar--, src += 2){
-	ucs2 = src[0]*256+src[1];
-	strncpy((char *)dst, (char *)(uni2euc + ucs2*4), 4);
-	len = strlen((char *)(uni2euc + ucs2*4));
+	offset = uni2euc[src[0]] + src[1]*4;
+	strncpy((char *)dst, offset, 4);
+	len = strlen(offset);
 	dst += len;
 	result += len;
     }
@@ -152,6 +152,7 @@ U32 _utf8_euc(U8 *dst, U8 *src){
     U32 len;
     U16 ucs2;
     U8 c1, c2, c3;
+    char *offset;
     for(; *src != '\0'; src++){
 	if (*src < 0x80) {     /* 1 byte */
 	    ucs2 = *src;
@@ -162,8 +163,9 @@ U32 _utf8_euc(U8 *dst, U8 *src){
 	    c1 = *src++; c2 = *src++; c3 = *src;
 	    ucs2 = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6)| (c3 & 0x3F);
 	}
-	strncpy((char *)dst, (char *)(uni2euc + ucs2*4), 4);
-	len = strlen((char *)(uni2euc + ucs2*4));
+	offset = uni2euc[ucs2/256] + (ucs2%256)*4;
+	strncpy((char *)dst, offset, 4);
+	len = strlen(offset);
 	dst += len;
 	result += len;
     }
@@ -208,4 +210,3 @@ int main(int argc, char **argv){
 }
 
 #endif
-

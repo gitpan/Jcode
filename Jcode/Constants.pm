@@ -1,5 +1,5 @@
 #
-# $Id: Constants.pm,v 0.56 1999/07/23 16:44:23 dankogai Exp $
+# $Id: Constants.pm,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $
 #
 
 package Jcode::Constants;
@@ -7,8 +7,8 @@ package Jcode::Constants;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Constants.pm,v 0.56 1999/07/23 16:44:23 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.56 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Constants.pm,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.57 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -45,7 +45,7 @@ my %_0208 = (
 
 %RE =
     (
-     ASCII     => '[\x00-\xff]',
+     ASCII     => '[\x00-\x7f]',
      BIN       => '[\x00-\x06\x7f\xff]',
      EUC_0212  => '\x8f[\xa1-\xfe][\xa1-\xfe]',
      EUC_C     => '[\xa1-\xfe][\xa1-\xfe]',
@@ -56,6 +56,7 @@ my %_0208 = (
      JIS_KANA  => "\e" . '\(I',
      SJIS_C    => '[\x81-\x9f\xe0-\xfc][\x40-\x7e\x80-\xfc]',
      SJIS_KANA => '[\xa1-\xdf]',
+     UTF8      => '[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf][\x80-\xbf]'
      );
 
 #

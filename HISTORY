@@ -1,6 +1,10 @@
 #
-# $Id: HISTORY,v 0.56 1999/07/23 16:44:23 dankogai Exp $
+# $Id: HISTORY,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $
 #
+0.57	1999/07/27
+	* Access Methods to misc. Jcode objecsts added
+	* UTF8 detection supported by getcode
+	* POD correction
 0.56	1999/07/24
 	* Jcode::getcode();  SJIS detection is now faster for MOST cases
 	* POD correction

@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.56 1999/07/23 16:44:23 dankogai Exp $
+# $Id: Jcode.pm,v 0.57 1999/07/26 15:49:11 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.56 1999/07/23 16:44:23 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.56 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.57 1999/07/26 15:49:11 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.57 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -82,8 +82,6 @@ Creates Jcode object $j from $str.  Input code is automatically checked
 unless you explicitly set $icode. For available charset, see L<getcode()>
 below.
 
-This is necessary if you want to convert from UTF8. 
-
 The object keeps the string in EUC format enternaly.  When the object 
 itself is evaluated, it returns the EUC-converted string so you can 
 "print $j;" without calling access method if you are using EUC 
@@ -97,11 +95,6 @@ Jcode->new(\$str);
 
 This saves time a little bit.  In exchange of the value of $str being 
 converted. (In a way, $str is now "tied" to jcode object).
-
-=item Instance Variables
-
-Unlike most cases where perl objects are implemented as ref to hashes,
-A Jcode object is a reference to array to optimize perfomance.
 
 =cut
 
@@ -120,6 +113,10 @@ sub new {
     carp "Object of class $class created" if $DEBUG >= 2;
     bless $self, $class;
 }
+
+sub r_str  { $_[0]->[0] }
+sub icode  { $_[0]->[1] }
+sub nmatch { $_[0]->[2] }
 
 =item $j->set($str [, $icode]);
 
@@ -222,7 +219,7 @@ sub mime_encode{
 
 Decodes MIME-Header in Jcode object.
 
-You can retrieve the number of matches via $j->[2];
+You can retrieve the number of matches via $j->nmatch;
 
 =cut
 
@@ -230,7 +227,7 @@ sub mime_decode{
     require MIME::Base64; # not use
     my $self = shift;
     my $r_str = $self->[0];
-    $self->{nmatch} = 
+    $self->[2] = 
 	(
 	 $$r_str =~ s(
 		      =\?[Ii][Ss][Oo]-2022-[Jj][Pp]\?[Bb]\?
@@ -255,7 +252,7 @@ When $keep_dakuten is set, it leaves dakuten as is
 (That is, "ka + dakuten" is left as is instead of
 being converted to "ga")
 
-You can retrieve the number of matches via $j->[2];
+You can retrieve the number of matches via $j->nmatch;
 
 =cut
 
@@ -270,7 +267,7 @@ sub h2z {
 
 Converts X208 kana (Zenkaku) to X201 kana (Hankazu).
 
-You can retrieve the number of matches via $j->[2];
+You can retrieve the number of matches via $j->nmatch;
 
 =cut
 
@@ -281,7 +278,6 @@ sub z2h {
     return $self;
 }
 
-
 =head2 Methods implemented in Jcode::Tr
 
 Methods here are actually implemented in Jcode::Tr.
@@ -290,7 +286,7 @@ Methods here are actually implemented in Jcode::Tr.
 
 Applies tr on Jcode object. $from and $to can contain EUC Japanese.
 
-You can retrieve the number of matches via $j->[2];
+You can retrieve the number of matches via $j->nmatch;
 
 =cut
 
@@ -353,12 +349,38 @@ sub utf8{
     euc_utf8(${$_[0]->[0]});
 }
 
+=head2 Instance Variables
+
+If you need to access instance variables of Jcode object, use access
+methods below instead of directly accessing them (That's what OOP
+is all about)
+
+FYI, Jcode uses a ref to array instead of ref to hash (common way) to
+optimize speed (Actually you don't have to know as long as you use
+access methods instead;  Once again, that's OOP)
+
+=item $j->r_str
+
+Reference to the EUC-coded String.
+
+=item $j->icode
+
+Input charcode in recent operation.
+
+=item $j->nmatch
+
+Number of matches (Used in $j->tr, etc.)
+
+=cut
+
 =head1 Subroutines
 
 =item ($code, [$nmatch]) = getcode($str);
 
-Returns char code of $str. Available codes are as follows
+Returns char code of $str. Return codes are as follows
 
+ ascii   Ascii (Contains no Japanese Code)
+ binary  Binary (Not Text File)
  euc     EUC-JP
  sjis    SHIFT_JIS
  jis     JIS (ISO-2022-JP)
@@ -368,8 +390,6 @@ Returns char code of $str. Available codes are as follows
 When array context is used instead of scaler, it also returns how many
 character codes are found.  As mentioned above, $str can be \$str
 instead.
-
-Warning:  UTF8 is not automatically detected!
 
 =item jcode.pl Users:
 
@@ -387,46 +407,42 @@ This function is 100% upper-conpatible with jcode::getcode() -- well, almost;
 sub getcode {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
-    my ($code, $nmatch, $sjis, $euc) = ("", 0, 0, 0);
+    my ($code, $nmatch, $sjis, $euc, $utf8) = ("", 0, 0, 0, 0);
     
     if ($$r_str =~ /$RE{BIN}/o) {	# 'binary'
 	my $ucs2;
 	$ucs2 += length($1)
-	    while $$r_str =~ /(\x00\w)+/go;
+	    while $$r_str =~ /(\x00$RE{ASCII})+/go;
 	if ($ucs2){      # smells like raw unicode 
-	    $nmatch = $ucs2;
-	    $code   = 'ucs2';
+	    ($code, $nmatch) = ('ucs2', $ucs2);
 	}else{
-	    $nmatch = 0;
-	    $code = 'binary';
+	    ($code, $nmatch) = ('binary', 0);
 	 }
     }
-    elsif ($$r_str !~ /[\e\200-\377]/o) {	# not Japanese
-	$nmatch = 0;
-	$code = undef;
+    elsif ($$r_str !~ /[\e\x80-\xff]/o) {	# not Japanese
+	($code, $nmatch) = ('ascii', 1);
     }				# 'jis'
     elsif ($$r_str =~ 
 	   m[
 	     $RE{JIS_0208}|$RE{JIS_0212}|$RE{JIS_ASC}|$RE{JIS_KANA}
 	   ]ox)
     {
-	$nmatch = 1;
-	$code = 'jis';
-    } else {			# should be 'euc' or 'sjis'
+	($code, $nmatch) = ('jis', 1);
+    } 
+    else { # should be euc|sjis|utf8
 	# use of (?:) by Hiroki Ohzaki <ohzaki@iod.ricoh.co.jp>
-	# Non-ambiguous match suggested by Hiroki Ohzaki
-	if ($$r_str =~ m/[\x81-\x8d\x90-\x9F]/o){ # Can only be SJIS
-	    $nmatch = 1;
-	    $code   = 'sjis';
-	} else { # last resort
-	   $sjis += length($1) 
-	       while $$r_str =~ /((?:$RE{SJIS_C})+)/go;
-	   $euc  += length($1) 
-	       while $$r_str =~ /((?:$RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)/go;
-	   $nmatch = _max($sjis, $euc);
-	   carp ">DEBUG:sjis = $sjis, euc = $euc" if $DEBUG >= 3;
-	   $code = $sjis > $euc ? 'sjis' : $sjis < $euc ? 'euc' : undef ;
-       }
+	$sjis += length($1) 
+	    while $$r_str =~ /((?:$RE{SJIS_C})+)/go;
+	$euc  += length($1) 
+	    while $$r_str =~ /((?:$RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)/go;
+	$utf8  += length($1) 
+	    while $$r_str =~ /((?:$RE{UTF8})+)/go;
+	$nmatch = _max($utf8, $sjis, $euc);
+	carp ">DEBUG:sjis = $sjis, euc = $euc, utf8 = $utf8" if $DEBUG >= 3;
+	$code = 
+	    ($euc > $sjis and $euc > $utf8) ? 'euc' :
+		($sjis > $euc and $sjis > $utf8) ? 'sjis' :
+		    ($utf8 > $euc and $utf8 > $sjis) ? 'utf8' : undef;
     }
     return wantarray ? ($code, $nmatch) : $code;
 }

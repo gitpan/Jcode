@@ -14,13 +14,12 @@ Unicode/Makefile.PL
 Unicode/Unicode.pm
 Unicode/Unicode.xs
 Unicode/_test.pl
-Unicode/euc_utf8
 Unicode/table.h
 Unicode/unicode.c
-Unicode/utf8_euc
 t/ambiguous.pl
 t/benchmark.pl
 t/convert.t
+t/getcode.t
 t/h2z.t
 t/hankaku.euc
 t/hiragana.euc

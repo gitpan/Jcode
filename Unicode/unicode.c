@@ -1,5 +1,5 @@
 /*
- * $Id: unicode.c,v 0.55 1999/07/22 17:26:08 dankogai Exp $
+ * $Id: unicode.c,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $
  * (c) 1999 Dan Kogai <dankogai@dan.co.jp>
  */
 

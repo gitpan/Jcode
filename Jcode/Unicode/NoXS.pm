@@ -1,5 +1,5 @@
 #
-# $Id: NoXS.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $
+# $Id: NoXS.pm,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $
 #
 
 package Jcode::Unicode::NoXS;
@@ -7,8 +7,8 @@ package Jcode::Unicode::NoXS;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: NoXS.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.55 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: NoXS.pm,v 0.57 1999/07/26 15:45:59 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.57 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -128,9 +128,7 @@ sub Jcode::utf8_ucs2{
     $$r_str =~ s/^[\200-\277]+//o;  # can't start with 10xxxxxx
     $$r_str =~ 
 	s[
-	  [\x00-\x7f] |
-	  [\xc0-\xdf][\x80-\xbf] | 
-	  [\xe0-\xef][\x80-\xbf][\x80-\xbf]
+	  $RE{ASCII} | $RE{UTF8}
 	  ]{
 	      if (length($&) == 1){
 		  pack("n", unpack("C", $&));

@@ -6,6 +6,8 @@ $| = 1; # autoflush
 use vars qw(@ARGV $ARGV);
 use Jcode;
 
+$Jcode::DEBUG ||= $ARGV[0] ? $ARGV[0] : 0;
+
 my ($NTESTS, @TESTS) ;
 
 sub profile {
@@ -37,59 +39,16 @@ profile(sprintf("prep: ucs2 ok %d\n", ++$n)) unless $ucs2 eq $euc;
 my $utf8 = Jcode::euc_utf8($euc);
 profile(sprintf("prep: utf8 ok %d\n", ++$n)) unless $utf8 eq $euc;
 
-my %code2str = 
-    (
-     'euc' =>  $euc,
-     'jis' =>  $jis,
-     'sjis' => $sjis,
-     'ucs2' => $ucs2,
-     'utf8' => $utf8,
-     );
-
-# by Value
-
-for my $icode (keys %code2str){
-    my $ok;
-    my $j = Jcode->new($code2str{$icode}, $icode);
-    for my $ocode (keys %code2str){
-	if ($j->$ocode() eq $code2str{$ocode}){
-	    $ok = "ok";
-	}else{
-	    $ok = "not ok";
-	}
-	profile(sprintf("ASCII|X201|X208: %4s -> %4s %s %d\n", 
-			$icode, $ocode, $ok, ++$n ));
-
-    }
-}
-
-# x212
-
-$euc = `cat t/x0212.euc`; #&ascii . &x201 . &x208;
-$jis  = Jcode::euc_jis($euc);
-
-%code2str = 
-    (
-     'euc' =>  $euc,
-     'jis' =>  $jis,
-     );
-
-# by Value
-
-for my $icode (keys %code2str){
-    my $ok;
-    my $j = Jcode->new($code2str{$icode}, $icode);
-    for my $ocode (keys %code2str){
-	if ($j->$ocode() eq $code2str{$ocode}){
-	    $ok = "ok";
-	}else{
-	    $ok = "not ok";
-	}
-	profile(sprintf("X212: %4s -> %4s %s %d\n", 
-			$icode, $ocode, $ok, ++$n ));
-
-    }
-}
+profile(sprintf("getcode:  euc ok %d\n", ++$n)) 
+    unless Jcode::getcode($euc) ne 'euc';
+profile(sprintf("getcode:  jis ok %d\n", ++$n))
+    unless Jcode::getcode($jis) ne 'jis';
+profile(sprintf("getcode: sjis ok %d\n", ++$n)) 
+    unless Jcode::getcode($sjis) ne 'sjis';
+profile(sprintf("getcode: ucs2 ok %d\n", ++$n))
+    unless Jcode::getcode($ucs2) ne 'ucs2';
+profile(sprintf("getcode: utf8 ok %d\n", ++$n))
+    unless Jcode::getcode($utf8) ne 'utf8';
 
 print 1, "..", $NTESTS, "\n";
 for my $TEST (@TESTS){

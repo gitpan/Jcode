@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.75 2001/07/19 01:08:45 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.76 2001/12/17 00:31:11 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.75 2001/07/19 01:08:45 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.75 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.76 2001/12/17 00:31:11 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.76 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -321,7 +321,7 @@ sub _mime_unstructured_header {
     push(@words, $wordstmp[-1]);
     for my $word (@words) {
 	if ($word =~ /^[\x21-\x7E]+$/) {
-	    $header =~ /(?:.*\n)?(.*)/;
+	    $header =~ /(?:.*\n)*(.*)/;
 	    if (length($1) + length($word) > $bpl) {
 		$header .= "$lf $word";
 	    } else {
@@ -330,7 +330,7 @@ sub _mime_unstructured_header {
 	} else {
 	    $header = _add_encoded_word($word, $header, $bpl);
 	}
-	$header =~ /(?:.*\n)?(.*)/;
+	$header =~ /(?:.*\n)*(.*)/;
 	if (length($1) == $bpl) {
 	    $header .= "$lf ";
 	} else {

@@ -1,6 +1,9 @@
 #
-# $Id: HISTORY,v 0.75 2001/07/19 01:08:45 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.76 2001/12/17 00:30:41 dankogai Exp dankogai $
 #
+0.76	2001/12/17
+	* mime_encode bug fixed
+	  (jun.k <jun.k@isite.homeip.net>)
 0.75    2001/07/19
 	* (:?) -> (?:) (Tatsuhiko Miyagawa <miyagawa@edge.co.jp>)
 	* fixed file permissions 

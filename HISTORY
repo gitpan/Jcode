@@ -1,6 +1,8 @@
 #
-# $Id: HISTORY,v 0.63 2000/11/24 13:11:50 dankogai Exp $
+# $Id: HISTORY,v 0.64 2000/11/24 14:59:16 dankogai Exp $
 #
+0.64	2000/11/24
+	* Same as 0.63; just misuploaded CPAN
 0.63	2000/11/24
 	* $jcode->mime_(de|en)code bugfix
           (thank you, ohzaki@iod.ricoh.co.jp;

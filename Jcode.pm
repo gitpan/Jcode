@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.63 2000/11/24 13:11:50 dankogai Exp $
+# $Id: Jcode.pm,v 0.64 2000/11/24 14:58:19 dankogai Exp $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.63 2000/11/24 13:11:50 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.63 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.64 2000/11/24 14:58:19 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.64 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -329,7 +329,7 @@ sub mime_decode{
     require MIME::Base64; # not use
     my $self = shift;
     my $r_str = $self->[0];
-    my $re_lws = '(?:(\x0D|\x0A|\x0D\x0A)?[ \t])+';
+    my $re_lws = '(?:(?:\x0D|\x0A|\x0D\x0A)?[ \t])+';
     my $re_ew = '=\?ISO-2022-JP\?B\?([A-Za-z0-9+/]+=*)\?=';
     $$r_str =~ s/($re_ew)$re_lws(?=$re_ew)/$1/sgo;
     $$r_str =~ s/$re_lws/ /go;

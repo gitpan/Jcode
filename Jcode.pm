@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.77 2002/01/14 11:06:55 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.78 2002/01/15 08:15:43 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -39,8 +39,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 0.77 2002/01/14 11:06:55 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.77 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.78 2002/01/15 08:15:43 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.78 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 use Exporter;
@@ -71,6 +71,8 @@ use overload
 =head1 Methods
 
 Methods mentioned here all return Jcode object unless otherwise mentioned.
+
+=over 4
 
 =item $j = Jcode-E<gt>new($str [, $icode]);
 
@@ -107,6 +109,8 @@ Sets $j's internal string to $str.  Handy when you use Jcode object repeatedly
 =item $j-E<gt>append($str [, $icode]);
 
 Appends $str to $j's internal string.
+
+=back
 
 =cut
 
@@ -156,6 +160,8 @@ sub append {
     return $self;
 }
 
+=over 4
+
 =item $j = jcode($str [, $icode]);
 
 shortcut for Jcode->new() so you can go like;
@@ -175,6 +181,8 @@ What you code is what you get :)
 Same as $j->z2h->jis.  
 Hankaku Kanas are forcibly converted to Zenkaku.
 
+=back
+
 =cut
 
 sub jcode { return Jcode->new(@_) }
@@ -183,12 +191,16 @@ sub jis   { return  &euc_jis(${$_[0]->[0]})}
 sub sjis  { return &euc_sjis(${$_[0]->[0]})}
 sub iso_2022_jp{return $_[0]->h2z->jis}
 
+=over 4
+
 =item [@lines =] $jcode-E<gt>jfold([$bytes_per_line, $newline_str]);
 
 folds lines in jcode string every $bytes_per_line (default: 72) 
 in a way that does not clobber the multibyte string.
 (Sorry, no Kinsoku done!)
 with a newline string spified by $newline_str (default: \n).  
+
+=back
 
 =cut
 
@@ -220,6 +232,8 @@ To use methods below, you need MIME::Base64.  To install, simply
 
    perl -MCPAN -e 'CPAN::Shell->install("MIME::Base64")'
 
+=over 4
+
 =item $mime_header = $j-E<gt>mime_encode([$lf, $bpl]);
 
 Converts $str to MIME-Header documented in RFC1522. 
@@ -232,6 +246,8 @@ this number must be smaller than 76).
 Decodes MIME-Header in Jcode object.
 
 You can retrieve the number of matches via $j->nmatch;
+
+=back
 
 =cut
 
@@ -346,6 +362,8 @@ sub mime_decode{
 
 Methods below are actually implemented in Jcode::H2Z.
 
+=over 4
+
 =item $j-E<gt>h2z([$keep_dakuten]);
 
 Converts X201 kana (Hankaku) to X208 kana (Zenkaku).  
@@ -360,6 +378,8 @@ You can retrieve the number of matches via $j->nmatch;
 Converts X208 kana (Zenkaku) to X201 kana (Hankazu).
 
 You can retrieve the number of matches via $j->nmatch;
+
+=back
 
 =cut
 
@@ -383,11 +403,15 @@ sub z2h {
 
 Methods here are actually implemented in Jcode::Tr.
 
+=over 4
+
 =item  $j-E<gt>tr($from, $to);
 
 Applies tr on Jcode object. $from and $to can contain EUC Japanese.
 
 You can retrieve the number of matches via $j->nmatch;
+
+=back
 
 =cut
 
@@ -430,6 +454,8 @@ Jcode::Unicode::NoXS will be used.
 
 See L<Jcode::Unicode> and L<Jcode::Unicode::NoXS> for details
 
+=over 4
+
 =item $ucs2 = $j-E<gt>ucs2;
 
 Returns UCS2 (Raw Unicode) string.
@@ -437,6 +463,8 @@ Returns UCS2 (Raw Unicode) string.
 =item $ucs2 = $j-E<gt>utf8;
 
 Returns utf8 String.
+
+=back
 
 =cut
 
@@ -460,6 +488,8 @@ FYI, Jcode uses a ref to array instead of ref to hash (common way) to
 optimize speed (Actually you don't have to know as long as you use
 access methods instead;  Once again, that's OOP)
 
+=over 4
+
 =item $j-E<gt>r_str
 
 Reference to the EUC-coded String.
@@ -472,9 +502,13 @@ Input charcode in recent operation.
 
 Number of matches (Used in $j->tr, etc.)
 
+=back
+
 =cut
 
 =head1 Subroutines
+
+=over 4
 
 =item ($code, [$nmatch]) = getcode($str);
 
@@ -510,6 +544,8 @@ getcode(). As mentioned above, $str can be \$str instead.
 
 B<jcode.pl Users:>  This function is 100% upper-conpatible with 
 jcode::convert() !
+
+=back
 
 =cut
 
@@ -751,13 +787,13 @@ couldn't have coded this far.
 
 =head1 SEE ALSO
 
-=item L<Jcode::Unicode>
+L<Jcode::Unicode>
 
-=item L<Jcode::Unicode::NoXS>
+L<Jcode::Unicode::NoXS>
 
-=item L<http://www.iana.org/assignments/character-sets>
+http://www.iana.org/assignments/character-sets
 
-=item L<Encode>
+L<Encode>
 
 =head1 COPYRIGHT
 

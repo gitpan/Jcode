@@ -1,6 +1,12 @@
 #
 # $Id: HISTORY,v 0.65 2000/12/11 05:35:36 dankogai Exp $
 #
+0.66	2000/12/21
+	* =?iso-2022-jp?b? is now case insensitive
+	  (toshihiro.kayama@toshiba.co.jp)
+	* documentation bug fixed (miyagawa@edge.co.jp)
+	* $mime_header = $j->mime_encode() now accepts optional arguments
+	* \x0a -> \n, \x0d -> \r unless suitable (ohzaki@iod.ricoh.co.jp)
 0.65	2000/12/11
 	* $jcode->mime_(de|en)code debug
 	* t/mime.t added

@@ -46,9 +46,12 @@ for my $k (keys %mime){
 for my $decoded (sort keys %mime){
     my ($ok, $out);
     my $encoded = $mime{$decoded};
+    my $encoded_i = $encoded; $encoded_i =~ s/^(=\?ISO-2022-JP\?B\?)/lc($1)/eo;
     my $t_encoded = jcode($decoded)->mime_encode;
     my $t_decoded = jcode($encoded)->mime_decode;
-    if ($t_decoded eq $decoded){
+    my $t_decoded_i = jcode($encoded_i)->mime_decode;
+ 
+   if ($t_decoded eq $decoded){
 	$ok = "ok";
     }else{
 	$ok = "not ok";
@@ -56,9 +59,23 @@ for my $decoded (sort keys %mime){
 D:>$decoded<
 D:>$t_decoded<
 EOF
-    }
+}
+
     profile(sprintf("MIME decode: %s -> %s %s %d\n", 
 		    $decoded, $encoded, $ok, ++$n ));
+
+    if ($t_decoded_i eq $decoded){
+	$ok = "ok";
+	print $encoded_i, "\n";
+    }else{
+	$ok = "not ok";
+	print <<"EOF";
+D:>$decoded<
+D:>$t_decoded<
+EOF
+}
+    profile(sprintf("MIME decode: %s -> %s %s %d\n", 
+		    $decoded, $encoded_i, $ok, ++$n ));
 
     if ($t_encoded eq $encoded){
 	$ok = "ok";

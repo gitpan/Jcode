@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 0.65 2000/12/11 05:35:36 dankogai Exp $
+# $Id: Jcode.pm,v 0.66 2000/12/21 12:04:40 dankogai Exp dankogai $
 #
 
 =head1 NAME
@@ -22,7 +22,7 @@ Jcode - Japanese Charset Handler
 Jcode.pm supports both object and traditional approach.  
 With object approach, you can go like;
 
-$iso_2022_jp = Jcode::new($str)->h2z->jis;
+$iso_2022_jp = Jcode->new($str)->h2z->jis;
 
 Which is more elegant than;
 
@@ -39,8 +39,8 @@ require 5.004;
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Jcode.pm,v 0.65 2000/12/11 05:35:36 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 0.65 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 0.66 2000/12/21 12:04:40 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 0.66 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -58,7 +58,7 @@ use vars @EXPORT_OK;
 $DEBUG = 0;
 $USE_CACHE = 1;
 
-print $RCSID, "\x0a" if $DEBUG;
+print $RCSID, "\n" if $DEBUG;
 
 use Jcode::Constants qw(:all);
 
@@ -199,7 +199,7 @@ sub iso_2022_jp{return $_[0]->h2z->jis}
 folds lines in jcode string every $bytes_per_line (default: 72) 
 in a way that does not clobber the multibyte string.
 (Sorry, no Kinsoku done!)
-with a newline string spified by $newline_str (default: \x0a).  
+with a newline string spified by $newline_str (default: \n).  
 
 =cut
 
@@ -207,7 +207,7 @@ sub jfold{
     my $self = shift;
     my ($bpl, $nl) = @_;
     $bpl ||= 72;
-    $nl  ||= "\x0a";
+    $nl  ||= "\n";
     my $r_str = $self->[0];
     my (@lines, $len, $i);
     while ($$r_str =~ m/([\x8f\x8e]$RE{EUC_C}|$RE{EUC_C}|[\x00-\xff])/sgo){
@@ -230,11 +230,25 @@ To use methods below, you need MIME::Base64.  To install, simply
 
    perl -MCPAN -e 'CPAN::Shell->install("MIME::Base64")'
 
-=item $mime_header = $j->mime_encode([$word_boundary]);
+=item $mime_header = $j->mime_encode([$lf, $bpl]);
 
-Converts $str to MIME-Header documented in RFC1522.
+Converts $str to MIME-Header documented in RFC1522. 
+When $lf is specified, it uses $lf to fold line (default: \n);
+When $bpl is specified, it uses $bpl for the number of bytes (default: 76);
 
 =cut
+
+sub mime_encode{
+    my $self = shift;
+    my $r_str = $self->[0];
+    my $lf  = shift || "\n";
+    my $bpl = shift || 76;
+
+    my ($trailing_crlf) = ($$r_str =~ /(\n|\r|\x0d\x0a)$/o);
+    my $str  = _mime_unstructured_header($$r_str, $lf, $bpl);
+    not $trailing_crlf and $str =~ s/(\n|\r|\x0d\x0a)$//o;
+    $str;
+}
 
 #
 # shamelessly stolen from
@@ -250,7 +264,7 @@ sub _add_encoded_word {
 	$str = '';
 	if (length($line) + 22 +
 	    ($target =~ /^(?:$RE{EUC_0212}|$RE{EUC_C})/o) * 8 > 76) {
-	    $line =~ s/[ \t\x0a\x0d]*$/\x0a/;
+	    $line =~ s/[ \t\n\r]*$/\n/;
 	    $result .= $line;
 	    $line = ' ';
 	}
@@ -273,7 +287,7 @@ sub _add_encoded_word {
 
 
 sub _mime_unstructured_header {
-    my $oldheader = shift;
+    my ($oldheader, $lf, $bpl) = @_;
     my(@words, @wordstmp, $i);
     my $header = '';
     $oldheader =~ s/\s+$//;
@@ -289,32 +303,24 @@ sub _mime_unstructured_header {
     push(@words, $wordstmp[-1]);
     for my $word (@words) {
 	if ($word =~ /^[\x21-\x7E]+$/) {
-	    $header =~ /(?:.*\x0a)?(.*)/;
-	    if (length($1) + length($word) > 76) {
-		$header .= "\x0a $word";
+	    $header =~ /(?:.*\n)?(.*)/;
+	    if (length($1) + length($word) > $bpl) {
+		$header .= "$lf $word";
 	    } else {
 		$header .= $word;
 	    }
 	} else {
 	    $header = _add_encoded_word($word, $header);
 	}
-	$header =~ /(?:.*\x0a)?(.*)/;
-	if (length($1) == 76) {
-	    $header .= "\x0a ";
+	$header =~ /(?:.*\n)?(.*)/;
+	if (length($1) == $bpl) {
+	    $header .= "$lf ";
 	} else {
 	    $header .= ' ';
 	}
     }
-    $header =~ s/\x0a? $/\x0a/;
+    $header =~ s/\n? $/\n/;
     $header;
-}
-
-sub mime_encode{
-    my $r_str = $_[0]->[0];
-    my ($trailing_crlf) = ($$r_str =~ /(\x0a|\x0d|\x0d\x0a)$/o);
-    my $str  = _mime_unstructured_header($$r_str);
-    not $trailing_crlf and $str =~ s/(\x0a|\x0d|\x0d\x0a)$//o;
-    $str;
 }
 
 =item $j->mime_decode;
@@ -326,7 +332,7 @@ You can retrieve the number of matches via $j->nmatch;
 =cut
 
 # see http://www.din.or.jp/~ohzaki/perl.htm#JP_Base64
-#$lws = '(?:(?:\x0D\x0A)?[ \t])+'; 
+#$lws = '(?:(?:\x0d\x0a)?[ \t])+'; 
 #$ew_regex = '=\?ISO-2022-JP\?B\?([A-Za-z0-9+/]+=*)\?='; 
 #$str =~ s/($ew_regex)$lws(?=$ew_regex)/$1/gio; 
 #$str =~ s/$lws/ /go; $str =~ s/$ew_regex/decode_base64($1)/egio; 
@@ -335,8 +341,8 @@ sub mime_decode{
     require MIME::Base64; # not use
     my $self = shift;
     my $r_str = $self->[0];
-    my $re_lws = '(?:(?:\x0D|\x0A|\x0D\x0A)?[ \t])+';
-    my $re_ew = '=\?ISO-2022-JP\?B\?([A-Za-z0-9+/]+=*)\?=';
+    my $re_lws = '(?:(?:\r|\n|\x0d\x0a)?[ \t])+';
+    my $re_ew = '(?i:=\?ISO-2022-JP\?B\?)([A-Za-z0-9+/]+=*)\?=';
     $$r_str =~ s/($re_ew)$re_lws(?=$re_ew)/$1/sgo;
     $$r_str =~ s/$re_lws/ /go;
     $self->[2] = 

@@ -1,6 +1,17 @@
 #
-# $Id: HISTORY,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
+# $Id: HISTORY,v 0.56 1999/07/23 16:44:23 dankogai Exp $
 #
+0.56	1999/07/24
+	* Jcode::getcode();  SJIS detection is now faster for MOST cases
+	* POD correction
+0.55	1999/07/23
+	* Due to the popular demands, Non-XS version of modules are back!
+	* Jcode::NKF dropped
+        * Non-XS version of utf8 -> ucs2 conversion is much faster!
+0.50    1999/07/21
+        * Conversion routines are now all XS!
+        * Significant Performance improvement everywhere
+        * Especially Unicode-related routines
 0.40    1999/07/16 (Internal only)
 	* suggestion by ISHINO k16 <k16@softvision.co.jp>
 	*  Unicode conversion now leaves ascii as it is

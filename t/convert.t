@@ -28,7 +28,7 @@ profile(sprintf("prep:  jis ok %d\n", ++$n)) unless $jis eq $euc;
 my $sjis = Jcode::euc_sjis($euc);
 profile(sprintf("prep: sjis ok %d\n", ++$n)) unless $sjis eq $euc;
 
-use Jcode::Unicode;
+Jcode::load_module("Jcode::Unicode");
 
 my $ucs2 = Jcode::euc_ucs2($euc);
 profile(sprintf("prep: ucs2 ok %d\n", ++$n)) unless $ucs2 eq $euc;
@@ -80,10 +80,10 @@ for my $icode (keys %code2str){
 
 # x212
 
-$euc  =  &x212;
+$euc = `cat t/x0212.euc`; #&ascii . &x201 . &x208;
 $jis  = Jcode::euc_jis($euc);
-$ucs2 = Jcode::euc_ucs2($euc);
-$utf8 = Jcode::euc_utf8($euc);
+#$ucs2 = Jcode::euc_ucs2($euc);
+#$utf8 = Jcode::euc_utf8($euc);
 
 %code2str = 
     (
@@ -110,16 +110,4 @@ for my $icode (keys %code2str){
 print 1, "..", $NTESTS, "\n";
 for my $TEST (@TESTS){
     print $TEST; 
-}
-
-sub x212{
-    my ($str, $line, $wchar);
-    for my $c2 (0xA1..0xFE){
-        for my $c1 (0xA1..0xFE){
-            $line .=  "\x8f" . chr($c2) . chr($c1);
-        }
-        $str .= $line . "\n" unless $line =~ /^\s+$/o;
-        $line = "";
-    }
-    return $str;
 }

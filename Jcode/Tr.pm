@@ -1,39 +1,19 @@
 #
-# $Id: Tr.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
+# $Id: Tr.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $
 #
-
-=head1 NAME
-
-Jcode::Tr -- a tr that accepts EUC
-
-=head1 DESCRIPTION
-
-This module is for internal use by Jcode modules.
-
-=head1 COPYRIGHT
-
-Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
-
-This library is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-=cut
 
 package Jcode::Tr;
 
 use strict;
 use vars qw($VERSION $RCSID);
 
-$RCSID = q$Id: Tr.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Tr.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.55 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
 use Jcode::Constants qw(:all);
 use vars qw(%_TABLE);
-
-$RCSID = q$Id: Tr.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 sub tr {
     # $prev_from, $prev_to, %table are persistent variables

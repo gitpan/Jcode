@@ -1,31 +1,14 @@
 #
-# $Id: H2Z.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
+# $Id: H2Z.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $
 #
-
-=head1 NAME
-
-Jcode::H2Z -- Hankaku-zenkaku conversion routines
-
-=head1 DESCRIPTION
-
-This module is for internal use by Jcode modules.
-
-=head1 COPYRIGHT
-
-Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
-
-This library is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-=cut
 
 package Jcode::H2Z;
 
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: H2Z.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: H2Z.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.55 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
@@ -142,10 +125,6 @@ $_PAT_H2Z = join("|", keys %_H2Z);
 $_PAT_Z2H    = join("|", keys %_Z2H);
 $_PAT_Z2D    = join("|", keys %_Z2D);
 
-=item h2z
-
-=cut
-    
 sub h2z {
     my $r_str = shift;
     my ($keep_dakuten) = @_;
@@ -173,10 +152,6 @@ sub h2z {
     }
     $n;
 }
-
-=item z2h
-
-=cut
 
 sub z2h {
     my $r_str = shift;

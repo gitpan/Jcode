@@ -57,7 +57,35 @@ for my $icode (keys %code2str){
 	}else{
 	    $ok = "not ok";
 	}
-	profile(sprintf("ASCII|X208|X208: %4s -> %4s %s %d\n", 
+	profile(sprintf("ASCII|X201|X208: %4s -> %4s %s %d\n", 
+			$icode, $ocode, $ok, ++$n ));
+
+    }
+}
+
+# x212
+
+$euc = `cat t/x0212.euc`; #&ascii . &x201 . &x208;
+$jis  = Jcode::euc_jis($euc);
+
+%code2str = 
+    (
+     'euc' =>  $euc,
+     'jis' =>  $jis,
+     );
+
+# by Value
+
+for my $icode (keys %code2str){
+    my $ok;
+    my $j = Jcode->new($code2str{$icode}, $icode);
+    for my $ocode (keys %code2str){
+	if ($j->$ocode() eq $code2str{$ocode}){
+	    $ok = "ok";
+	}else{
+	    $ok = "not ok";
+	}
+	profile(sprintf("X212: %4s -> %4s %s %d\n", 
 			$icode, $ocode, $ok, ++$n ));
 
     }
@@ -67,6 +95,10 @@ print 1, "..", $NTESTS, "\n";
 for my $TEST (@TESTS){
     print $TEST; 
 }
+
+
+
+
 
 
 

@@ -1,17 +1,6 @@
 #
-# $Id: Jcode.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 0.56 1999/07/23 16:44:23 dankogai Exp $
 #
-
-package Jcode;
-require 5.004;
-
-use strict;
-use vars qw($RCSID $VERSION);
-
-$RCSID = q$Id: Jcode.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
-
-use Carp;
 
 =head1 NAME
 
@@ -19,17 +8,41 @@ Jcode - Japanese Charset Handler
 
 =head1 SYNOPSIS
 
-use Jcode;
-
-# traditional
-
-Jcode::convert(\$str, $ocode, $icode, "z");
-
-# or OOP!
-
-print Jcode->new($str)->h2z->tr($from, $to)->utf8;
+ use Jcode;
+ 
+ # traditional
+ Jcode::convert(\$str, $ocode, $icode, "z");
+ # or OOP!
+ print Jcode->new($str)->h2z->tr($from, $to)->utf8;
 
 =cut
+
+=head1 DESCRIPTION
+
+Jcode.pm supports both object and traditional approach.  
+With object approach, you can go like;
+
+$iso_2022_jp = Jcode::new($str)->h2z->jis;
+
+Which is more elegant than;
+
+$iso_2022_jp = &jcode::convert(\$str,'jis',jcode::getcode(\str), "z");
+
+For those unfamiliar with objects, Jcode.pm still supports getcode()
+and convert(). 
+
+=cut
+
+package Jcode;
+require 5.004;
+
+use strict;
+use vars qw($RCSID $VERSION);
+
+$RCSID = q$Id: Jcode.pm,v 0.56 1999/07/23 16:44:23 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.56 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+
+use Carp;
 
 BEGIN {
     use Exporter;
@@ -49,46 +62,34 @@ print $RCSID, "\n" if $DEBUG;
 
 use Jcode::Constants qw(:all);
 
-my %_S2E = ();
-my %_E2S = ();
-
-use overload 
-    '""' => sub { ${$_[0]->{r_str}} },
-    '==' => sub {overload::StrVal($_[0]) eq overload::StrVal($_[1])},
-    fallback => 1,
-    ;
-
-=head1 DESCRIPTION
-
-Jcode.pm supports both object and traditional approach.  
-With object approach, you can go like;
-
-$iso_2022_jp = Jcode::new($str)->h2z->jis;
-
-Which is more elegant than;
-
-$iso_2022_jp = &jcode::convert(\$str,'jis',jcode::getcode(\str), "z");
-
-For those unfamiliar with objects, Jcode.pm still supports getcode() and convert().
-
 =head1 Methods
 
 Methods mentioned here all return Jcode object unless otherwise mentioned.
 
 =over 4
 
+=cut
+
+use overload 
+    '""' => sub { ${$_[0]->[0]} },
+    '==' => sub {overload::StrVal($_[0]) eq overload::StrVal($_[1])},
+    fallback => 1,
+    ;
+
 =item $j = Jcode->new($str [, $icode]);
 
 Creates Jcode object $j from $str.  Input code is automatically checked 
-unless you explicitly set $icode (This is necessary if you want to 
-convert from UTF8). 
+unless you explicitly set $icode. For available charset, see L<getcode()>
+below.
+
+This is necessary if you want to convert from UTF8. 
 
 The object keeps the string in EUC format enternaly.  When the object 
 itself is evaluated, it returns the EUC-converted string so you can 
 "print $j;" without calling access method if you are using EUC 
 (thanks to function overload).
 
-Just like most of perl objects, Jcode object is just a reference to hash so you can retrieve its guts via $j->{whatever}.
+=item Passing Reference
 
 Instead of scalar value, You can use reference as
 
@@ -96,6 +97,11 @@ Jcode->new(\$str);
 
 This saves time a little bit.  In exchange of the value of $str being 
 converted. (In a way, $str is now "tied" to jcode object).
+
+=item Instance Variables
+
+Unlike most cases where perl objects are implemented as ref to hashes,
+A Jcode object is a reference to array to optimize perfomance.
 
 =cut
 
@@ -106,11 +112,11 @@ sub new {
     my $nmatch;
     ($icode, $nmatch) = getcode($r_str) unless $icode;
     convert($r_str, 'euc', $icode);
-    my $self = {
-	r_str    => $r_str,
-	icode  => $icode,
-	nmatch => $nmatch,
-    };
+    my $self = [
+	$r_str,
+	$icode,
+	$nmatch,
+    ];
     carp "Object of class $class created" if $DEBUG >= 2;
     bless $self, $class;
 }
@@ -120,10 +126,11 @@ sub new {
 Sets $j's internal string to $str.  Handy when you use Jcode object repeatedly 
 (saves time and memory to create object). 
 
-# converts mailbox to SJIS format
-
-my $jconv = new Jcode;
-while(<>){print $jconv->set(\$_)->mime_decode->sjis;}
+ # converts mailbox to SJIS format
+ my $jconv = new Jcode;
+ while(&lt;&gt;){
+     print $jconv->set(\$_)->mime_decode->sjis;
+ }
 
 =cut
 
@@ -134,9 +141,9 @@ sub set {
     my $nmatch;
     ($icode, $nmatch) = getcode($r_str) unless $icode;
     convert($r_str, 'euc', $icode);
-    $self->{r_str}  = $r_str;
-    $self->{icode}  = $icode;
-    $self->{nmatch} = $nmatch;
+    $self->[0] = $r_str;
+    $self->[1] = $icode;
+    $self->[2] = $nmatch;
     return $self;
 }
 
@@ -153,11 +160,12 @@ sub append {
     my $nmatch;
     ($icode, $nmatch) = getcode($r_str) unless $icode;
     convert($r_str, 'euc', $icode);
-    ${$self->{r_str}}   .= $$r_str;
-    $self->{icode}       = $icode;
-    $self->{nmatch}      = $nmatch;
+    ${$self->[0]} .= $$r_str;
+    $self->[1] = $icode;
+    $self->[2] = $nmatch;
     return $self;
 }
+
 
 =item $j = jcode($str [, $icode]);
 
@@ -176,11 +184,12 @@ What you code is what you get :)
 =cut
 
 sub jcode { return Jcode->new(@_) }
-sub euc   { return ${$_[0]->{r_str}} }
-sub jis   { return  &euc_jis(${$_[0]->{r_str}})}
-sub sjis  { return &euc_sjis(${$_[0]->{r_str}})}
+sub euc   { return ${$_[0]->[0]} }
+sub jis   { return  &euc_jis(${$_[0]->[0]})}
+sub sjis  { return &euc_sjis(${$_[0]->[0]})}
 
-=item $iso_2022_jp = j$str->iso_2022_jp
+
+=item $iso_2022_jp = $j->iso_2022_jp
 
 Same as $j->z2h->jis.  
 Hankaku Kanas are forcibly converted to Zenkaku.
@@ -193,7 +202,7 @@ sub iso_2022_jp{return $_[0]->h2z->jis}
 
 To use methods below, you need MIME::Base64.  To install, simply
 
-perl -MCPAN C<-e> 'CPAN::Shell->install("MIME::Base64")'
+   perl -MCPAN -e 'CPAN::Shell->install("MIME::Base64")'
 
 =item $mime_header = $j->mime_encode;
 
@@ -213,14 +222,14 @@ sub mime_encode{
 
 Decodes MIME-Header in Jcode object.
 
-You can retrieve the number of matches via $j->{nmatch};
+You can retrieve the number of matches via $j->[2];
 
 =cut
 
 sub mime_decode{
     require MIME::Base64; # not use
     my $self = shift;
-    my $r_str = $self->{r_str};
+    my $r_str = $self->[0];
     $self->{nmatch} = 
 	(
 	 $$r_str =~ s(
@@ -237,7 +246,7 @@ sub mime_decode{
 
 =head2 Methods implemented by Jcode::H2Z
 
-Methods here are actually implemented in Jcode::H2Z.
+Methods below are actually implemented in Jcode::H2Z.
 
 =item $j->h2z([$keep_dakuten]);
 
@@ -246,14 +255,14 @@ When $keep_dakuten is set, it leaves dakuten as is
 (That is, "ka + dakuten" is left as is instead of
 being converted to "ga")
 
-You can retrieve the number of matches via $j->{nmatch};
+You can retrieve the number of matches via $j->[2];
 
 =cut
 
 sub h2z {
     require Jcode::H2Z; # not use
     my $self = shift;
-    $self->{nmatch} = Jcode::H2Z::h2z($self->{r_str}, @_);
+    $self->[2] = Jcode::H2Z::h2z($self->[0], @_);
     return $self;
 }
 
@@ -261,16 +270,17 @@ sub h2z {
 
 Converts X208 kana (Zenkaku) to X201 kana (Hankazu).
 
-You can retrieve the number of matches via $j->{nmatch};
+You can retrieve the number of matches via $j->[2];
 
 =cut
 
 sub z2h {
     require Jcode::H2Z; # not use
     my $self = shift;
-    $self->{nmatch} =  &Jcode::H2Z::z2h($self->{r_str}, @_);
+    $self->[2] =  &Jcode::H2Z::z2h($self->[0], @_);
     return $self;
 }
+
 
 =head2 Methods implemented in Jcode::Tr
 
@@ -280,20 +290,46 @@ Methods here are actually implemented in Jcode::Tr.
 
 Applies tr on Jcode object. $from and $to can contain EUC Japanese.
 
-You can retrieve the number of matches via $j->{nmatch};
+You can retrieve the number of matches via $j->[2];
 
 =cut
 
 sub tr{
     require Jcode::Tr; # not use
     my $self = shift;
-    $self->{nmatch} = Jcode::Tr::tr($self->{r_str}, @_);
+    $self->[2] = Jcode::Tr::tr($self->[0], @_);
     return $self;
+}
+
+#
+# load needed module depending on the configuration just once!
+#
+
+use vars qw(%PKG_LOADED);
+sub load_module{
+    my $pkg = shift;
+    return $pkg if $PKG_LOADED{$pkg}++;
+    eval qq( require $pkg; );
+    unless ($@){
+	carp "$pkg loaded." if $DEBUG;
+    }else{
+	$pkg .= "::NoXS";
+	eval qq( require $pkg; );
+	unless ($@){
+	    carp "$pkg loaded" if $DEBUG;
+	}else{
+	    croak "Loading $pkg failed!";
+	}
+    }
+    $pkg;
 }
 
 =head2 Methods implemented in Jcode::Unicode
 
-See L<Jcode::Unicode> for details
+If your perl does not support XS (or you can't C<perl Makefile.PL>,
+Jcode::Unicode::NoXS will be used.
+
+See L<Jcode::Unicode> and L<Jcode::Unicode::NoXS> for details
 
 =item $ucs2 = $j->ucs2;
 
@@ -302,8 +338,8 @@ Returns UCS2 (Raw Unicode) string.
 =cut
 
 sub ucs2{
-    require Jcode::Unicode;
-    euc_ucs2(${$_[0]->{r_str}});
+    load_module("Jcode::Unicode");
+    euc_ucs2(${$_[0]->[0]});
 }
 
 =item $ucs2 = $j->utf8;
@@ -313,26 +349,38 @@ Returns utf8 String.
 =cut
 
 sub utf8{
-    require Jcode::Unicode;
-    euc_utf8(${$_[0]->{r_str}});
+    load_module("Jcode::Unicode");
+    euc_utf8(${$_[0]->[0]});
 }
 
-=head1 Traditional Way
+=head1 Subroutines
 
 =item ($code, [$nmatch]) = getcode($str);
 
-Returns char code of $str. When array context is used instead of
-scaler, it also returns how many character codes are found.  
-As mentioned above, $str can be \$str instead.
+Returns char code of $str. Available codes are as follows
+
+ euc     EUC-JP
+ sjis    SHIFT_JIS
+ jis     JIS (ISO-2022-JP)
+ ucs2    UCS2 (Raw Unicode)
+ utf8    UTF8
+
+When array context is used instead of scaler, it also returns how many
+character codes are found.  As mentioned above, $str can be \$str
+instead.
 
 Warning:  UTF8 is not automatically detected!
 
-jcode.pl Users:
+=item jcode.pl Users:
+
 This function is 100% upper-conpatible with jcode::getcode() -- well, almost;
 
-* When its return value is an array, the order is the opposite;  jcode::getcode() returns $nmatch first.
+ * When its return value is an array, the order is the opposite;
+   jcode::getcode() returns $nmatch first.
 
-* jcode::getcode() returns 'undef' when the number of EUC characters is equal to that of SJIS.  Jcode::getcode() returns EUC.  for Jcode.pm is no in-betweens.
+ * jcode::getcode() returns 'undef' when the number of EUC characters
+   is equal to that of SJIS.  Jcode::getcode() returns EUC.  for
+   Jcode.pm is no in-betweens. 
 
 =cut
 
@@ -357,19 +405,28 @@ sub getcode {
 	$nmatch = 0;
 	$code = undef;
     }				# 'jis'
-    elsif ($$r_str =~ /$RE{JIS_0208}|$RE{JIS_0212}|$RE{JIS_ASC}|$RE{JIS_KANA}/o) {
+    elsif ($$r_str =~ 
+	   m[
+	     $RE{JIS_0208}|$RE{JIS_0212}|$RE{JIS_ASC}|$RE{JIS_KANA}
+	   ]ox)
+    {
 	$nmatch = 1;
 	$code = 'jis';
-    }
-    else {			# should be 'euc' or 'sjis'
+    } else {			# should be 'euc' or 'sjis'
 	# use of (?:) by Hiroki Ohzaki <ohzaki@iod.ricoh.co.jp>
-	$sjis += length($1) 
-	    while $$r_str =~ /((?:$RE{SJIS_C})+)/go;
-	$euc  += length($1) 
-	    while $$r_str =~ /((?:$RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)/go;
-	$nmatch = _max($sjis, $euc);
-	carp ">DEBUG:sjis = $sjis, euc = $euc" if $DEBUG >= 3;
-	$code = $sjis > $euc ? 'sjis' : 'euc';
+	# Non-ambiguous match suggested by Hiroki Ohzaki
+	if ($$r_str =~ m/[\x81-\x8d\x90-\x9F]/o){ # Can only be SJIS
+	    $nmatch = 1;
+	    $code   = 'sjis';
+	} else { # last resort
+	   $sjis += length($1) 
+	       while $$r_str =~ /((?:$RE{SJIS_C})+)/go;
+	   $euc  += length($1) 
+	       while $$r_str =~ /((?:$RE{EUC_C}|$RE{EUC_KANA}|$RE{EUC_0212})+)/go;
+	   $nmatch = _max($sjis, $euc);
+	   carp ">DEBUG:sjis = $sjis, euc = $euc" if $DEBUG >= 3;
+	   $code = $sjis > $euc ? 'sjis' : $sjis < $euc ? 'euc' : undef ;
+       }
     }
     return wantarray ? ($code, $nmatch) : $code;
 }
@@ -380,7 +437,8 @@ Converts $str to char code specified by $ocode.  When $icode is specified
 also, it assumes $icode for input string instead of the one checked by
 getcode(). As mentioned above, $str can be \$str instead.
 
-jcode.pl Users:
+=item jcode.pl Users:
+
 This function is 100% upper-conpatible with jcode::convert() !
 
 =cut
@@ -400,7 +458,7 @@ sub convert{
 
     # convert to EUC
 
-    require Jcode::Unicode if $icode =~ /ucs2|utf8/o;
+    load_module("Jcode::Unicode") if $icode =~ /ucs2|utf8/o;
     if ($icode and defined &{$method = $icode . "_euc"}){
 	carp "Dispatching \&$method" if $DEBUG >= 2;
 	&{$method}($r_str) ;
@@ -418,7 +476,7 @@ sub convert{
     
     # convert to $ocode
 
-    require Jcode::Unicode if $ocode =~ /ucs2|utf8/o;
+    load_module("Jcode::Unicode") if $ocode =~ /ucs2|utf8/o;
     if ($ocode and defined &{$method = "euc_" . $ocode}){
 	carp "Dispatching \&$method" if $DEBUG >= 2;
 	&{$method}($r_str) ;
@@ -452,7 +510,6 @@ sub jis_euc {
 }
 
 #
-
 sub euc_jis {
     my $thingy = shift;
     my $r_str = _mkbuf($thingy);
@@ -470,6 +527,9 @@ sub euc_jis {
 }
 
 # EUC<->SJIS
+
+my %_S2E = ();
+my %_E2S = ();
 
 sub sjis_euc {
     my $thingy = shift;
@@ -546,15 +606,14 @@ for Perl4 by Kazumasa Utashiro <utashiro@iij.ad.jp>.
 Hiroki Ohzaki <ohzaki@iod.ricoh.co.jp> has helped me polish regexp from the 
 very first stage of development.
 
+And folks at Jcode Mailing list <jcode5@ring.gr.jp>.  Without them, I
+couldn't have coded this far.
+
 =head1 SEE ALSO
 
-=item L<Jcode::Constants>
-
-=item L<Jcode::H2Z>
-
-=item L<Jcode::Tr>
-
 =item L<Jcode::Unicode>
+
+=item L<Jcode::Unicode::NoXS>
 
 =head1 COPYRIGHT
 
@@ -563,32 +622,4 @@ Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
 This library is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
 
-Unicode conversion table in Jcode::Unicode::Constants is based on files at 
-ftp://ftp.unicode.org/Public/MAPPINGS/EASTASIA/JIS/, 
-Copyright (c) 1991-1994 Unicode, Inc.
-
 =cut
-
-CREDITS from jcode.pl
-;######################################################################
-;#
-;# jcode.pl: Perl library for Japanese character code conversion
-;#
-;# Copyright (c) 1995-1999 Kazumasa Utashiro <utashiro@iij.ad.jp>
-;# Internet Initiative Japan Inc.
-;# 3-13 Kanda Nishiki-cho, Chiyoda-ku, Tokyo 101-0054, Japan
-;#
-;# Copyright (c) 1992,1993,1994 Kazumasa Utashiro
-;# Software Research Associates, Inc.
-;#
-;# Original version was developed under the name of srekcah@sra.co.jp
-;# February 1992 and it was called kconv.pl at the beginning.  This
-;# address was a pen name for group of individuals and it is no longer
-;# valid.
-;#
-;# Use and redistribution for ANY PURPOSE, without significant
-;# modification, is granted as long as all copyright notices are
-;# retained.  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND
-;# ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
-;#
-;######################################################################

@@ -22,14 +22,14 @@ for $ocode (qw/euc jis sjis/){
 sub jcode_test{
     require "jcode.pl";
     for (@src){
-      &jcode::convert(\$_, $ocode);
+      &jcode::convert(\$_, $ocode, 'euc');
     }
 }
 
 sub Jcode_trad{
     use Jcode;
     for (@src){
-	&Jcode::convert(\$_, $ocode);
+	&Jcode::convert(\$_, $ocode, 'euc');
     }
 }
 
@@ -38,7 +38,7 @@ sub Jcode_oop{
     no strict "refs";
     my $j = new Jcode;
     for (@src){
-	$j->set(\$_)->$ocode();
+	$j->set(\$_, 'euc')->$ocode();
     }
 }
 

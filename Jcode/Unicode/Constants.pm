@@ -1,52 +1,24 @@
 #
-# $Id: Constants.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $
+# $Id: Constants.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $
 #
-
-
-=head1 NAME
-
-Jcode::Unicode::Constants -- UCS2-EUC conversion table
-
-=head1 DESCRIPTION
-
-This module just contains a huge hash that converts UCS2 from/to EUC.
-
-=head1 SEE ALSO
-
-=item ftp://ftp.unicode.org/Public/MAPPINGS/EASTASIA/JIS/
-
-Unicode mapping data
-
-=head1 COPYRIGHT
-
-Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
-
-This library is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-Unicode conversion table here is based on files at 
-ftp://ftp.unicode.org/Public/MAPPINGS/EASTASIA/JIS/, 
-Copyright (c) 1991-1994 Unicode, Inc.
-
-=cut
 
 package Jcode::Unicode::Constants;
 
 use strict;
 use vars qw($RCSID $VERSION);
 
-$RCSID = q$Id: Constants.pm,v 0.40 1999/07/15 18:26:18 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 0.40 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Constants.pm,v 0.55 1999/07/22 17:26:08 dankogai Exp $;
+$VERSION = do { my @r = (q$Revision: 0.55 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;
 
 # Exporter is not used to optimize speed
 
-package Jcode::Unicode;
+package Jcode::Unicode::Constants;
+
 use vars qw(%_U2E %_E2U);
 
 # Ugly S.O.B Here!
-
 %_U2E = (
 "\x00\xa1" => "\x8f\xa2\xc2",
 "\x00\xa2" => "\xa1\xf1",
@@ -13063,10 +13035,41 @@ use vars qw(%_U2E %_E2U);
 
 for my $c (0x00..0x7f){
     next if exists $_U2E{"\x00" . chr($c)};
-    $Jcode::Unicode::_U2E{"\x00" . chr($c)} = chr($c);
+    $_U2E{"\x00" . chr($c)} = chr($c);
 }
 
 %_E2U = ();
 
 1;
 
+
+=head1 NAME
+
+Jcode::Unicode::Constants -- UCS2-EUC conversion table
+
+=head1 SYNOPSIS
+
+NONE
+
+=head1 DESCRIPTION
+
+This module just contains a huge hash that converts UCS2 from/to EUC.
+
+=head1 SEE ALSO
+
+=item ftp://ftp.unicode.org/Public/MAPPINGS/EASTASIA/JIS/
+
+Unicode mapping data
+
+=head1 COPYRIGHT
+
+Copyright 1999 Dan Kogai <dankogai@dan.co.jp>
+
+This library is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.
+
+Unicode conversion table here is based on files at 
+ftp://ftp.unicode.org/Public/MAPPINGS/EASTASIA/JIS/, 
+Copyright (c) 1991-1994 Unicode, Inc.
+
+=cut

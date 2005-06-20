@@ -1,19 +1,20 @@
 #!/usr/local/bin/perl
 #
-# $Id: Makefile.PL,v 2.0 2005/05/16 19:08:08 dankogai Exp dankogai $
+# $Id: Makefile.PL,v 2.1 2005/06/20 06:21:06 dankogai Exp dankogai $
 #
 use strict;
 use ExtUtils::MakeMaker;
 
 my @EXTRA;
-$] >= 5.008001
-    and @EXTRA = (
-		  NORECURS => 1,
-		  PM => { 'Jcode.pm' =>  '$(INST_LIB)/Jcode.pm',
-			  'Jcode/Nihongo.pod'
+if ($] >= 5.008001){
+    @EXTRA = (
+	      NORECURS => 1,
+	      PM => { 'Jcode.pm' =>  '$(INST_LIB)/Jcode.pm',
+		      'Jcode/Nihongo.pod'
 			  => '$(INST_LIB)/Jcode/Nihongo.pod'
 		      },
-		  );
+	      );
+}
 
 WriteMakefile
     (

@@ -1,5 +1,5 @@
 #
-# $Id: Unicode.pm,v 2.0 2005/05/16 19:08:12 dankogai Exp dankogai $
+# $Id: Unicode.pm,v 2.0 2005/05/16 19:08:12 dankogai Exp $
 #
 
 package Jcode::Unicode;
@@ -7,7 +7,7 @@ package Jcode::Unicode;
 use strict;
 use vars qw($RCSID $VERSION @ISA @EXPORT $PEDANTIC);
 
-$RCSID = q$Id: Unicode.pm,v 2.0 2005/05/16 19:08:12 dankogai Exp dankogai $;
+$RCSID = q$Id: Unicode.pm,v 2.0 2005/05/16 19:08:12 dankogai Exp $;
 $VERSION = do { my @r = (q$Revision: 2.0 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;

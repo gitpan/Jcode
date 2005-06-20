@@ -1,8 +1,12 @@
 #
-# $Id: Changes,v 2.0 2005/05/16 19:07:51 dankogai Exp dankogai $
+# $Id: Changes,v 2.1 2005/06/20 06:21:06 dankogai Exp dankogai $
 #
+$Revision: 2.1 $ $Date: 2005/06/20 06:21:06 $
+! Makefile.PL
+  vs. ExtUtils::MakeMaker 6.30 -- Thanks, Mike (Castle|Schwern).
+  Message-Id: <20050620041227.GE5165@windhund.schwern.org>
 
-$Revision: 2.0 $ $Date: 2005/05/16 19:07:51 $
+$Revision: 2.0 2005/05/16 19:07:51
 ! Jcode.pm
   2.00 released ex officio!
 

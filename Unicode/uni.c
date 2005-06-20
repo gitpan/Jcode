@@ -1,5 +1,5 @@
 /*
- * $Id: uni.c,v 2.0 2005/05/16 19:08:16 dankogai Exp dankogai $
+ * $Id: uni.c,v 2.0 2005/05/16 19:08:16 dankogai Exp $
  * (c) 1999-2003 Dan Kogai <dankogai@dan.co.jp>
  * This library is free software; you can redistribute it and/or
  * modify it under the same terms as Perl itself.

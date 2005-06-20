@@ -1,5 +1,5 @@
 #
-# $Id: Tr.pm,v 2.0 2005/05/16 19:08:00 dankogai Exp dankogai $
+# $Id: Tr.pm,v 2.0 2005/05/16 19:08:00 dankogai Exp $
 #
 
 package Jcode::Tr;
@@ -7,7 +7,7 @@ package Jcode::Tr;
 use strict;
 use vars qw($VERSION $RCSID);
 
-$RCSID = q$Id: Tr.pm,v 2.0 2005/05/16 19:08:00 dankogai Exp dankogai $;
+$RCSID = q$Id: Tr.pm,v 2.0 2005/05/16 19:08:00 dankogai Exp $;
 $VERSION = do { my @r = (q$Revision: 2.0 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 use Carp;

@@ -3,7 +3,7 @@
 use strict;
 use Jcode;
 use Test;
-BEGIN { plan tests => 82 }
+BEGIN { plan tests => 83 }
 
 my $seq = 0;
 sub myok{ # overloads Test::ok;
@@ -49,4 +49,7 @@ sub check{
     }
 }
 
+myok("This is a constant", 
+     Jcode::convert("This is a constant", "euc", "sjis"), 
+     qq<Jcode::convert("constant" ...)>);
 __END__

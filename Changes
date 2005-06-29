@@ -1,12 +1,20 @@
 #
-# $Id: Changes,v 2.1 2005/06/20 06:21:06 dankogai Exp dankogai $
+# $Id: Changes,v 2.2 2005/06/29 14:00:09 dankogai Exp dankogai $
 #
-$Revision: 2.1 $ $Date: 2005/06/20 06:21:06 $
+$Revision: 2.2 $ $Date: 2005/06/29 14:00:09 $
+! Jcode.pm t/convert.t
+  Addressed: Jcode::convert("constant" ...) croaks
+  because  'Modification of a read-only value attempted'.
+  Reported by Akira Kawamata via htmllint@ring.gr.jp
+  Message-Id: <200506291823.ADF32994.VUONVB@piedey.co.jp>
+  Message-Id: <674CABD0-F30B-4244-AFD6-AE9BFA0F3744@dan.co.jp>
+
+2.01 2005/06/20 06:21:06
 ! Makefile.PL
   vs. ExtUtils::MakeMaker 6.30 -- Thanks, Mike (Castle|Schwern).
   Message-Id: <20050620041227.GE5165@windhund.schwern.org>
 
-$Revision: 2.0 2005/05/16 19:07:51
+2.00 2005/05/16 19:07:51
 ! Jcode.pm
   2.00 released ex officio!
 

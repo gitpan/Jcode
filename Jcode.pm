@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 2.1 2005/06/20 06:20:12 dankogai Exp $
+# $Id: Jcode.pm,v 2.2 2005/06/29 14:00:09 dankogai Exp dankogai $
 #
 
 package Jcode;
@@ -8,8 +8,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 2.1 2005/06/20 06:20:12 dankogai Exp $;
-$VERSION = do { my @r = (q$Revision: 2.1 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 2.2 2005/06/29 14:00:09 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 2.2 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 # we no longer use Exporter
@@ -62,6 +62,7 @@ use Encode;
 use Encode::Alias;
 use Encode::Guess;
 use Encode::JP::H2Z;
+use Scalar::Util; # to resolve from_to() vs. 'constant' issue.
 
 my %jname2e = (
 	       sjis        => 'shiftjis',
@@ -181,8 +182,14 @@ sub convert{
 		: jcode($r_str, $icode)->z2h->$ocode ;
 	    
     }else{
-	Encode::from_to($$r_str, $icode, $ocode);
-	return $$r_str;
+	if (Scalar::Util::readonly($$r_str)){
+	    my $tmp = $$r_str;
+	    Encode::from_to($tmp, $icode, $ocode);
+	    return $tmp;
+	}else{
+	    Encode::from_to($$r_str, $icode, $ocode);
+	    return $$r_str;
+	}
     }
 }
 

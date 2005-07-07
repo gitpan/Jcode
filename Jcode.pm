@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 2.2 2005/06/29 14:00:09 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 2.3 2005/07/07 04:00:52 dankogai Exp dankogai $
 #
 
 package Jcode;
@@ -8,8 +8,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 2.2 2005/06/29 14:00:09 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 2.2 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 2.3 2005/07/07 04:00:52 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 2.3 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 # we no longer use Exporter
@@ -318,7 +318,8 @@ sub tr{
     my $from = Encode::is_utf8($_[0]) ? $_[0] : decode('euc-jp', $_[0]);
     my $to   = Encode::is_utf8($_[1]) ? $_[1] : decode('euc-jp', $_[1]);
     my $opt  = $_[2] || '';
-
+    $from =~ s,\\,\\\\,og; $from =~ s,/,\\/,og;
+    $to   =~ s,\\,\\\\,og; $to   =~ s,/,\\/,og;
     my $match = eval qq{ \$str =~ tr/$from/$to/$opt };
     if ($@){
         $self->{error_tr} = $@;
@@ -507,6 +508,7 @@ sub m{
     my $pattern = Encode::is_utf8($_[0]) ? shift : decode("euc-jp" => shift);
     my $opt     = shift || '' ;
     my @match;
+    
     eval qq{ \@match = (\$\$r_str =~ m/$pattern/$opt) };
     if ($@){
 	$self->{error_m} = $@;

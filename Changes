@@ -1,7 +1,13 @@
 #
-# $Id: Changes,v 2.2 2005/06/29 14:00:09 dankogai Exp dankogai $
+# $Id: Changes,v 2.3 2005/07/07 04:00:52 dankogai Exp dankogai $
 #
-$Revision: 2.2 $ $Date: 2005/06/29 14:00:09 $
+$Revision: 2.3 $ $Date: 2005/07/07 04:00:52 $
+! Jcode.pm t/tr.t
+  Fixed: $j->tr($from, "a-z/") yields unexpected result
+  Message-Id: <20050706114544.D80E.KSK@be.to>
+  Message-Id: <530FB8E2-B09D-4BBA-A271-09F0D91AAD79@dan.co.jp>  
+
+2.02 2005/06/29 14:00:09
 ! Jcode.pm t/convert.t
   Addressed: Jcode::convert("constant" ...) croaks
   because  'Modification of a read-only value attempted'.

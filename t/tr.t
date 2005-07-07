@@ -4,7 +4,7 @@
 use strict;
 use Jcode;
 use Test;
-BEGIN { plan tests => 5 }
+BEGIN { plan tests => 7 }
 
 my $seq = 0;
 sub myok{ # overloads Test::ok;
@@ -35,11 +35,11 @@ my %code2str =
 
 for my $icode (keys %code2str){
     for my $ocode (keys %code2str){
-	my $ok;
-	my $str = $code2str{$icode};
-	my $out = jcode(\$str)->tr($icode, $ocode)->euc;
-	myok($out,$code2str{$ocode}, 
-	     "H2Z: $icode -> $ocode");
+        my $ok;
+        my $str = $code2str{$icode};
+        my $out = jcode(\$str)->tr($icode, $ocode)->euc;
+        myok($out,$code2str{$ocode}, 
+             "H2Z: $icode -> $ocode");
     }
 }
 
@@ -48,9 +48,9 @@ for my $icode (keys %code2str){
 myok(jcode($hiragana)->tr('¤¡-¤ó','','d')->euc, $stripped,
       "H2Z: '¤¡-¤ó', '', d");
 
+my $s = '£Á£Â£Ã¡¿£Ä£Å£Æ';
+my $from = '£Á-£Ú¡¿';
+
+myok(jcode( $s, 'euc' )->tr( $from, 'A-Z/' )->euc,  'ABC/DEF', "tr");
+myok(jcode( $s, 'euc' )->tr( $from, 'A-Z\/' )->euc, 'ABC\DEF', "tr");
 __END__
-
-
-
-
-

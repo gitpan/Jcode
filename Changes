@@ -1,7 +1,13 @@
 #
-# $Id: Changes,v 2.3 2005/07/07 04:00:52 dankogai Exp dankogai $
+# $Id: Changes,v 2.4 2006/04/15 04:08:30 dankogai Exp dankogai $
 #
-$Revision: 2.3 $ $Date: 2005/07/07 04:00:52 $
+$Revision: 2.4 $ $Date: 2006/04/15 04:08:30 $
+! Jcode.pm t/perl581.t
+  Fixed: $j->GIVEN_ENCODING not working as advertized.
+  Message-Id: <20060414152058.2BCE.KSK@be.to>
+  Message-Id: <4355CE4F-6261-458F-8F2F-66BE6831991D@dan.co.jp>
+
+2.03 2005/07/07 04:00:52
 ! Jcode.pm t/tr.t
   Fixed: $j->tr($from, "a-z/") yields unexpected result
   Message-Id: <20050706114544.D80E.KSK@be.to>

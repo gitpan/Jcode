@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 2.3 2005/07/07 04:00:52 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 2.4 2006/04/15 04:08:30 dankogai Exp dankogai $
 #
 
 package Jcode;
@@ -8,8 +8,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 2.3 2005/07/07 04:00:52 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 2.3 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 2.4 2006/04/15 04:08:30 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 2.4 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 # we no longer use Exporter
@@ -297,11 +297,11 @@ sub AUTOLOAD {
     no strict 'refs';
     *{$myname} =
 	sub {
-	      my $r_str = $_[0]->{r_str};
-	      Encode::is_utf8($$r_str) ?
-		      $e->encode($$r_str, $_[0]->{fallback}) : $$r_str;
+	    my $str = ${ $_[0]->{r_str} };
+            Encode::is_utf8($str) ?
+		      $e->encode($str, $_[0]->{fallback}) : $str;
 	  };
-    goto &{$myname};
+    $myname->($self);
 }
 
 #######################################

@@ -1,7 +1,13 @@
 #
-# $Id: Changes,v 2.4 2006/04/15 04:08:30 dankogai Exp dankogai $
+# $Id: Changes,v 2.5 2006/05/16 05:00:19 dankogai Exp dankogai $
 #
-$Revision: 2.4 $ $Date: 2006/04/15 04:08:30 $
+$Revision: 2.5 $ $Date: 2006/05/16 05:00:19 $
+! Jcode.pm t/jfold.t
+  Jcode->new('12345678900')->jfold(5) must be ('12345','67890', '0')
+  but the trailing 0 was lost.
+  Message-Id: <6.2.3.4.2.20060516111520.03407f18@mail.sj.estore.co.jp>
+
+2.04 2006/04/15 04:08:30
 ! Jcode.pm t/perl581.t
   Fixed: $j->GIVEN_ENCODING not working as advertized.
   Message-Id: <20060414152058.2BCE.KSK@be.to>

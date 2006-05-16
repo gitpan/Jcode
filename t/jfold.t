@@ -8,7 +8,7 @@ BEGIN {
         exit 0;
     }
     require Test::More;
-    Test::More->import(tests => 5);
+    Test::More->import(tests => 6);
     
 }
 
@@ -35,5 +35,8 @@ is( jcode('あいうえお、かきくけこさしすせそ。')->jfold(10,'-',$kin),
 is( jcode('あいうえお!?')->jfold(10,'-',$kin),
     jcode('あいうえお!?'), 'jfold() with kinsoku 3' );
 
+my @a = ('12345','67890', '0');
+my @b = Jcode->new('12345678900')->jfold(5);
+is_deeply(\@a, \@b, 'Reported by Iwamoto')
 __END__
 

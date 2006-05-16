@@ -1,5 +1,5 @@
 #
-# $Id: Jcode.pm,v 2.4 2006/04/15 04:08:30 dankogai Exp dankogai $
+# $Id: Jcode.pm,v 2.5 2006/05/16 05:00:19 dankogai Exp dankogai $
 #
 
 package Jcode;
@@ -8,8 +8,8 @@ use Carp;
 use strict;
 use vars qw($RCSID $VERSION $DEBUG);
 
-$RCSID = q$Id: Jcode.pm,v 2.4 2006/04/15 04:08:30 dankogai Exp dankogai $;
-$VERSION = do { my @r = (q$Revision: 2.4 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$RCSID = q$Id: Jcode.pm,v 2.5 2006/05/16 05:00:19 dankogai Exp dankogai $;
+$VERSION = do { my @r = (q$Revision: 2.5 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 $DEBUG = 0;
 
 # we no longer use Exporter
@@ -364,7 +364,7 @@ sub jfold{
 	$lines[$i] .= $char;
 	$len += $clen;
     }
-    $lines[$i] or pop @lines;
+    defined($lines[$i]) or pop @lines;
     $$r_str = join($nl, @lines);
 
     $self->{r_str} = $r_str;

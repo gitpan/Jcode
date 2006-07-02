@@ -4,7 +4,7 @@
 use strict;
 use Jcode;
 use Test;
-BEGIN { plan tests => 7 }
+BEGIN { plan tests => 10 }
 
 my $seq = 0;
 sub myok{ # overloads Test::ok;
@@ -53,4 +53,15 @@ my $from = '£Á-£Ú¡¿';
 
 myok(jcode( $s, 'euc' )->tr( $from, 'A-Z/' )->euc,  'ABC/DEF', "tr");
 myok(jcode( $s, 'euc' )->tr( $from, 'A-Z\/' )->euc, 'ABC\DEF', "tr");
+
+local($SIG{__WARN__}) = sub{}; # suppress eval error
+our $T_FLAG = 0;
+my $p = __PACKAGE__;
+my $j = Jcode->new('a');
+$j->tr("//;\$$p\:\:T_FLAG+=1;", "", "");
+$j->tr("", "/;\$$p\:\:T_FLAG+=2;", "");
+$j->tr("", "", ";\$$p\:\:T_FLAG+=4;");
+myok($T_FLAG & 1, 0, "tr/// from escape test");
+myok($T_FLAG & 2, 0, "tr/// to escape test");
+myok($T_FLAG & 4, 0, "tr/// flag escape test");
 __END__
